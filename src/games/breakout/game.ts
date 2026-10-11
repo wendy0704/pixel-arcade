@@ -14,6 +14,7 @@ import {
   LIVES,
   PADDLE_H,
   PADDLE_Y,
+  rallyBoost,
   ROW_POINTS,
   substeps,
   WIDTH,
@@ -31,14 +32,14 @@ export function createGame(): Game {
   let served = false;
   let lives = LIVES;
   let level = 1;
-  let hits = 0;
+  let rally = 0;
   let score = 0;
   let banner = 0;
   let endTimer = -1;
   let finished = false;
   let time = 0;
 
-  const speed = () => ballSpeed(CONFIG[ctx.difficulty].ballSpeed, level, hits);
+  const speed = () => ballSpeed(CONFIG[ctx.difficulty].ballSpeed, level, rally);
   const clampPaddle = (x: number) => Math.max(paddleW / 2, Math.min(WIDTH - paddleW / 2, x));
 
   const launch = () => {
@@ -60,6 +61,7 @@ export function createGame(): Game {
   const loseLife = () => {
     lives--;
     served = false;
+    rally = 0;
     ctx.audio.play('die');
     if (lives <= 0) endTimer = 0.8;
   };
@@ -68,7 +70,7 @@ export function createGame(): Game {
     score += lives * LIFE_BONUS;
     ctx.setScore(score);
     level++;
-    hits = 0;
+    rally = 0;
     bricks = createBricks();
     served = false;
     banner = 1.5;
@@ -94,7 +96,7 @@ export function createGame(): Game {
       }
       const circle = { x: ball.x, y: ball.y, r: BALL_R };
       if (ball.vy > 0 && circleRect(circle, { x: paddleX - paddleW / 2, y: PADDLE_Y, w: paddleW, h: PADDLE_H })) {
-        hits++;
+        rally++;
         const v = bounceVelocity((ball.x - paddleX) / (paddleW / 2), speed());
         ball.vx = v.vx;
         ball.vy = v.vy;
@@ -107,7 +109,6 @@ export function createGame(): Game {
         const hit = circleRect(circle, b);
         if (!hit) continue;
         b.alive = false;
-        hits++;
         score += ROW_POINTS[b.row];
         ctx.setScore(score);
         ctx.audio.play('brick', 4 - b.row);
@@ -136,7 +137,7 @@ export function createGame(): Game {
       served = false;
       lives = LIVES;
       level = 1;
-      hits = 0;
+      rally = 0;
       score = 0;
       banner = 0;
       endTimer = -1;
@@ -183,6 +184,12 @@ export function createGame(): Game {
         g.fillRect(6 + i * 16, 9, 12, 4);
       }
       drawText(g, `LV ${level}`, WIDTH - 6, 8, { color: COLORS.gold, align: 'right' });
+      const boost = rallyBoost(rally);
+      const hot = boost >= 1.3;
+      drawText(g, `SPD x${boost.toFixed(2)}`, WIDTH / 2, 8, {
+        color: boost >= 1.5 ? COLORS.red : hot ? COLORS.orange : COLORS.muted,
+        align: 'center',
+      });
 
       for (const b of bricks) if (b.alive) drawBevel(g, b.x, b.y, b.w, b.h, ROW_COLORS[b.row], 2);
 

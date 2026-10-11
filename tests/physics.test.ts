@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ballSpeed, bounceVelocity, circleRect, createBricks, MAX_BOUNCE, substeps } from '../src/games/breakout/logic';
+import { ballSpeed, bounceVelocity, circleRect, createBricks, MAX_BOUNCE, rallyBoost, substeps } from '../src/games/breakout/logic';
 import { advance, MAX_FRAME, STEP } from '../src/core/game-loop';
 import { computeScale } from '../src/core/canvas';
 import {
@@ -28,11 +28,14 @@ describe('breakout', () => {
     expect(Math.atan2(edge.vx, -edge.vy)).toBeCloseTo(MAX_BOUNCE);
   });
 
-  it('speeds up by 5% every 10 hits up to 1.5x', () => {
+  it('speeds up by 4% per paddle return up to 1.6x', () => {
     expect(ballSpeed(200, 1, 0)).toBe(200);
-    expect(ballSpeed(200, 1, 10)).toBeCloseTo(210);
-    expect(ballSpeed(200, 1, 1000)).toBeCloseTo(300);
+    expect(ballSpeed(200, 1, 1)).toBeCloseTo(208);
+    expect(ballSpeed(200, 1, 10)).toBeCloseTo(280);
+    expect(ballSpeed(200, 1, 15)).toBeCloseTo(320);
+    expect(ballSpeed(200, 1, 1000)).toBeCloseTo(320);
     expect(ballSpeed(200, 2, 0)).toBeCloseTo(220);
+    expect(rallyBoost(5)).toBeCloseTo(1.2);
   });
 
   it('detects collision side', () => {

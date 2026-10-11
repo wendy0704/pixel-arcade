@@ -201,6 +201,17 @@ describe('1A2B', () => {
     expect(validateGuess('0123', 4)).toBeNull();
   });
 
+  it('agrees with a real play history reported from a phone', () => {
+    const history: [string, string][] = [
+      ['1234', '0A2B'],
+      ['1256', '0A2B'],
+      ['7890', '1A0B'],
+      ['1278', '0A2B'],
+      ['1290', '0A1B'],
+    ];
+    for (const [guess, result] of history) expect(formatJudgement(judge('2845', guess))).toBe(result);
+  });
+
   it('formats results', () => {
     expect(formatJudgement({ a: 1, b: 2 })).toBe('1A2B');
   });

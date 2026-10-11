@@ -29,9 +29,9 @@ export const POINTS_PER_FOOD = 10;
 export const DIRS: Dir[] = ['up', 'down', 'left', 'right'];
 
 export const SPEED: Record<Difficulty, { start: number; max: number }> = {
-  easy: { start: 6, max: 12 },
-  normal: { start: 8, max: 15 },
-  hard: { start: 10, max: 18 },
+  easy: { start: 4, max: 9 },
+  normal: { start: 5, max: 11 },
+  hard: { start: 7, max: 14 },
 };
 
 const VEC: Record<Dir, Point> = {

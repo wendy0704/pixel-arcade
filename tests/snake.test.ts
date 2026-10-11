@@ -94,9 +94,10 @@ describe('snake logic', () => {
   });
 
   it('speeds up every five foods up to the cap', () => {
-    expect(speedFor('easy', 0)).toBe(6);
-    expect(speedFor('easy', 5)).toBe(7);
-    expect(speedFor('normal', 4)).toBe(8);
-    expect(speedFor('hard', 500)).toBe(18);
+    expect(speedFor('easy', 0)).toBe(4);
+    expect(speedFor('easy', 5)).toBe(5);
+    expect(speedFor('normal', 4)).toBe(5);
+    expect(speedFor('easy', 500)).toBe(9);
+    expect(speedFor('hard', 500)).toBe(14);
   });
 });

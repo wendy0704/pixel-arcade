@@ -64,9 +64,15 @@ export function bounceVelocity(hitOffset: number, speed: number): { vx: number; 
   return { vx: speed * Math.sin(angle), vy: -speed * Math.cos(angle) };
 }
 
-export function ballSpeed(base: number, level: number, hits: number): number {
-  const levelStart = base * (1 + 0.1 * (level - 1));
-  return levelStart * Math.min(1.5, 1 + 0.05 * Math.floor(hits / 10));
+export const RALLY_STEP = 0.04;
+export const RALLY_MAX = 1.6;
+
+export function rallyBoost(rally: number): number {
+  return Math.min(RALLY_MAX, 1 + RALLY_STEP * rally);
+}
+
+export function ballSpeed(base: number, level: number, rally: number): number {
+  return base * (1 + 0.1 * (level - 1)) * rallyBoost(rally);
 }
 
 export function circleRect(c: Circle, r: Rect): { nx: number; ny: number } | null {
