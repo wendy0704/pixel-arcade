@@ -117,12 +117,6 @@ export class Lobby {
         h('div', { class: 'chips', role: 'group', 'aria-label': '分類' }, chips, favToggle),
       ),
       h('main', { class: 'lobby-main' }, this.grid, this.empty),
-      h(
-        'footer',
-        { class: 'lobby-footer' },
-        h('p', {}, '像素街機 Pixel Arcade・向經典遊戲致敬的學習作品，與原作公司無關。'),
-        h('p', {}, '字型：Press Start 2P、Fusion Pixel Font（SIL OFL 1.1）'),
-      ),
     );
     this.container.append(this.root);
     this.renderGrid();

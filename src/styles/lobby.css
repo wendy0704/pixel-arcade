@@ -250,15 +250,6 @@
   font-size: 24px;
 }
 
-.lobby-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding-top: 16px;
-  border-top: 2px dashed var(--panel-light);
-  color: var(--muted);
-  text-align: center;
-}
 
 @media (max-width: 599px) {
   .lobby {
