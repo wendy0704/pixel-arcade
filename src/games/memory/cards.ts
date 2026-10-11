@@ -1,12 +1,20 @@
 import { COLORS, drawBevel, drawSprite } from '../../core/pixel';
 import { ICONS } from './icons';
 
+const QUESTION = ['.XXX.', 'X...X', '....X', '...X.', '..X..', '.....', '..X..'];
+
 export function drawCardBack(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void {
   drawBevel(g, x, y, w, h, '#3a1a4e', 2);
-  g.fillStyle = COLORS.pink;
-  for (let yy = y + 6; yy < y + h - 4; yy += 8) {
-    for (let xx = x + 6 + ((yy - y) % 16 === 6 ? 0 : 4); xx < x + w - 4; xx += 8) g.fillRect(xx, yy, 2, 2);
+  if (w >= 12) {
+    g.fillStyle = '#5a2a72';
+    g.fillRect(x + 4, y + 4, w - 8, 1);
+    g.fillRect(x + 4, y + h - 5, w - 8, 1);
+    g.fillRect(x + 4, y + 4, 1, h - 8);
+    g.fillRect(x + w - 5, y + 4, 1, h - 8);
   }
+  const scale = Math.floor(w / 14);
+  if (scale < 1) return;
+  drawSprite(g, QUESTION, x + (w - 5 * scale) / 2, y + (h - 7 * scale) / 2, COLORS.pink, scale);
 }
 
 export function drawCardFace(g: CanvasRenderingContext2D, icon: number, x: number, y: number, w: number, h: number, matched: boolean): void {

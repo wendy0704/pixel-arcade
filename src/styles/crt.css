@@ -30,7 +30,7 @@ body.crt .neon {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
   body.crt .crt-overlay {
     animation: none;
   }

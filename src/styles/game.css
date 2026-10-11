@@ -352,8 +352,29 @@
     display: flex;
   }
 
-  .key-hint {
+  .key-hint,
+  .controls {
     display: none;
+  }
+
+  .touch-hint {
+    color: var(--text);
+  }
+}
+
+@media (max-height: 760px) {
+  .panel {
+    gap: 8px;
+    padding: 14px 16px;
+  }
+
+  .panel-heading {
+    font-size: 24px;
+    line-height: 1.2;
+  }
+
+  .btn-start {
+    min-height: 40px;
   }
 }
 
