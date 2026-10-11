@@ -1,6 +1,10 @@
 import { h } from './dom';
 import type { Services } from './services';
 
+function buildTime(): string {
+  return typeof __BUILD_TIME__ === 'string' ? __BUILD_TIME__ : '未知';
+}
+
 export function buildSettingsSection(services: Services, onRecordsCleared: () => void): HTMLElement {
   const { storage, audio } = services;
   const settings = storage.getSettings();
@@ -62,6 +66,6 @@ export function buildSettingsSection(services: Services, onRecordsCleared: () =>
     ),
     !storage.persistent && h('p', { class: 'warn' }, '此瀏覽器無法保存紀錄（可能是無痕模式），關閉分頁後紀錄會消失。'),
     h('p', { class: 'credits' }, '字型：Press Start 2P、Fusion Pixel Font（皆為 SIL OFL 1.1 授權）。所有遊戲畫面與音效皆為程式即時產生。'),
-    h('p', { class: 'credits build-time' }, `建置時間：${__BUILD_TIME__}`),
+    h('p', { class: 'credits build-time' }, `建置時間：${buildTime()}`),
   );
 }
