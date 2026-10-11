@@ -9,7 +9,7 @@ import { buildSettingsSection } from './settings-panel';
 
 export type PanelTab = 'profile' | 'settings';
 
-export function openOnboarding(services: Services, onDone: (profile: Profile) => void): void {
+export function openOnboarding(services: Services, onDone: (profile: Profile) => void): ModalHandle {
   const start = randomAvatar(Math.random);
   const editor = createProfileEditor({ name: '', ...start }, services.audio);
   let handle: ModalHandle | null = null;
@@ -32,6 +32,7 @@ export function openOnboarding(services: Services, onDone: (profile: Profile) =>
     h('div', { class: 'panel-actions dialog-actions' }, skipBtn, startBtn),
   );
   handle = openModal(panel, { dismissible: false });
+  return handle;
 }
 
 export class PlayerPanel {

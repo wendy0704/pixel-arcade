@@ -469,6 +469,10 @@ export class GameHost {
   private onKey = (e: KeyboardEvent): void => {
     if (isModalOpen() || isTextTarget(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
     if (SCROLL_KEYS.has(e.code)) e.preventDefault();
+    if (this.state === 'playing' && this.game?.onKey?.(e.key)) {
+      e.preventDefault();
+      return;
+    }
     if (e.repeat) return;
     switch (e.code) {
       case 'KeyP':

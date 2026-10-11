@@ -2,7 +2,7 @@ export type Difficulty = 'easy' | 'normal' | 'hard';
 export type Category = 'action' | 'puzzle' | 'shooter' | 'board';
 export type Action = 'up' | 'down' | 'left' | 'right' | 'primary' | 'secondary';
 export type ScoreOrder = 'higher' | 'lower';
-export type PadLayout = 'dpad-ab' | 'lr-a' | 'flag-toggle' | 'none';
+export type PadLayout = 'dpad-ab' | 'lr-a' | 'a' | 'flag-toggle' | 'none';
 
 export const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
 export const DIFFICULTY_LABEL: Record<Difficulty, string> = { easy: '簡單', normal: '普通', hard: '困難' };
@@ -91,6 +91,7 @@ export interface Game {
   update(dt: number): void;
   render(): void;
   onPointer?(event: PointerInfo): void;
+  onKey?(key: string): boolean;
   destroy(): void;
 }
 

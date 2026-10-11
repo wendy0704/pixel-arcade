@@ -5,6 +5,7 @@ import { h, ICONS, svgIcon } from './dom';
 import { gameHref } from './router';
 import type { Services } from './services';
 import { avatarCanvas, renderAvatar } from './avatar-view';
+import type { ModalHandle } from './modal';
 import { openOnboarding, PlayerPanel } from './player-panel';
 
 type Filter = 'all' | Category;
@@ -48,6 +49,7 @@ export class Lobby {
   private playerAvatar: HTMLCanvasElement | null = null;
   private playerName: HTMLElement | null = null;
   private playerBtn: HTMLButtonElement | null = null;
+  private onboarding: ModalHandle | null = null;
 
   constructor(
     private container: HTMLElement,
@@ -128,7 +130,12 @@ export class Lobby {
     this.renderGrid();
     this.refreshPlayer();
     if (focusId) this.grid.querySelector<HTMLElement>(`[data-id="${focusId}"] .card-link`)?.focus({ preventScroll: false });
-    if (!this.services.storage.getProfile()) openOnboarding(this.services, () => this.refreshPlayer());
+    if (!this.services.storage.getProfile()) {
+      this.onboarding = openOnboarding(this.services, () => {
+        this.onboarding = null;
+        this.refreshPlayer();
+      });
+    }
   }
 
   private refreshPlayer(): void {
@@ -141,6 +148,8 @@ export class Lobby {
 
   unmount(): void {
     this.panel.close();
+    this.onboarding?.close();
+    this.onboarding = null;
     this.root?.remove();
     this.root = null;
     this.grid = null;

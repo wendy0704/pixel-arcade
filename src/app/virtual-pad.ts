@@ -66,6 +66,10 @@ export function createVirtualPad(layout: PadLayout, labels: PadLabels | undefine
     };
   }
 
+  if (layout === 'a') {
+    return { el: h('div', { class: 'vpad vpad-single' }, abCluster(input, labels, false)), reset: () => undefined };
+  }
+
   if (layout === 'lr-a') {
     const el = h(
       'div',
