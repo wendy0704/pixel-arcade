@@ -1,4 +1,5 @@
 import type { AudioService } from '../types/game';
+import { isModalOpen } from './modal';
 
 const NAV_PREV = new Set(['ArrowUp', 'ArrowLeft']);
 const NAV_NEXT = new Set(['ArrowDown', 'ArrowRight']);
@@ -45,7 +46,7 @@ export class OverlayLayer {
   }
 
   private onKey = (e: KeyboardEvent): void => {
-    if (!this.visible || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (!this.visible || isModalOpen() || e.altKey || e.ctrlKey || e.metaKey) return;
     const buttons = this.buttons();
     if (buttons.length === 0) return;
     const current = buttons.indexOf(document.activeElement as HTMLButtonElement);

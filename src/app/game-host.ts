@@ -12,6 +12,8 @@ import {
   type PointerInfo,
 } from '../types/game';
 import { avatarCanvas } from './avatar-view';
+import { isModalOpen, openModal } from './modal';
+import { buildSettingsSection } from './settings-panel';
 import { h, ICONS, svgIcon } from './dom';
 import { OverlayLayer } from './overlays';
 import { goToLobby } from './router';
@@ -145,6 +147,8 @@ export class GameHost {
     this.muteBtn = h('button', { type: 'button', class: 'icon-btn' });
     this.muteBtn.addEventListener('click', () => this.toggleMute());
     this.renderMute();
+    const settingsBtn = h('button', { type: 'button', class: 'icon-btn', 'aria-label': '遊戲設定' }, svgIcon(ICONS.gear));
+    settingsBtn.addEventListener('click', () => this.openSettings());
     const fsBtn = h('button', { type: 'button', class: 'icon-btn', 'aria-label': '全螢幕（F）' }, svgIcon(ICONS.fullscreen));
     fsBtn.addEventListener('click', () => this.toggleFullscreen());
     const backBtn = h('button', { type: 'button', class: 'icon-btn back-btn', 'aria-label': '返回大廳' }, svgIcon(ICONS.back), h('span', { class: 'icon-btn-text' }, '大廳'));
@@ -165,7 +169,7 @@ export class GameHost {
           h('div', { class: 'score-item' }, h('span', { class: 'label pixel' }, 'SCORE'), this.scoreEl),
           h('div', { class: 'score-item best-item' }, h('span', { class: 'label pixel' }, 'BEST'), this.bestEl),
         ),
-        h('div', { class: 'bar-right' }, this.barAvatar(), this.pauseBtn, this.muteBtn, fsBtn),
+        h('div', { class: 'bar-right' }, this.barAvatar(), this.pauseBtn, this.muteBtn, settingsBtn, fsBtn),
       ),
       this.stage,
       this.pad?.el,
@@ -378,6 +382,21 @@ export class GameHost {
     this.overlay.show(panel);
   }
 
+  private openSettings(): void {
+    if (isModalOpen()) return;
+    this.pause();
+    const closeBtn = h('button', { type: 'button', class: 'btn btn-primary' }, '關閉');
+    const panel = h(
+      'div',
+      { class: 'panel modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'game-settings-title' },
+      h('h2', { id: 'game-settings-title', class: 'panel-heading' }, '遊戲設定'),
+      buildSettingsSection(this.services, () => this.renderBest()),
+      h('div', { class: 'panel-actions dialog-actions' }, closeBtn),
+    );
+    const handle = openModal(panel, { onClose: () => this.renderMute() });
+    closeBtn.addEventListener('click', () => handle.close());
+  }
+
   private barAvatar(): HTMLElement | null {
     const profile = this.services.storage.getProfile();
     if (!profile) return null;
@@ -448,7 +467,7 @@ export class GameHost {
   };
 
   private onKey = (e: KeyboardEvent): void => {
-    if (isTextTarget(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (isModalOpen() || isTextTarget(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
     if (SCROLL_KEYS.has(e.code)) e.preventDefault();
     if (e.repeat) return;
     switch (e.code) {

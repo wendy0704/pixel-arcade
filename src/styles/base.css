@@ -380,9 +380,14 @@ input {
   gap: 12px;
 }
 
-.save-status {
-  align-self: center;
-  color: var(--green, #3ddc84);
+.dialog-actions {
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.dialog-actions .btn {
+  flex: 0 1 140px;
+  min-width: 0;
 }
 
 .profile-editor {

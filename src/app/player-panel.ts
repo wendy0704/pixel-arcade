@@ -29,7 +29,7 @@ export function openOnboarding(services: Services, onDone: (profile: Profile) =>
     h('h2', { id: 'onboarding-title', class: 'panel-heading' }, '建立玩家檔案'),
     h('p', { class: 'panel-desc' }, '選一個角色、取個名字，也可以自己畫頭像。之後隨時可以點右上角的頭貼修改。'),
     editor.el,
-    h('div', { class: 'panel-actions' }, skipBtn, startBtn),
+    h('div', { class: 'panel-actions dialog-actions' }, skipBtn, startBtn),
   );
   handle = openModal(panel, { dismissible: false });
 }
@@ -56,25 +56,29 @@ export class PlayerPanel {
       settings: h('button', { type: 'button', class: 'btn tab', role: 'tab' }, '遊戲設定'),
     };
 
+    let editor: ReturnType<typeof createProfileEditor> | null = null;
+    const saveBtn = h('button', { type: 'button', class: 'btn btn-primary' }, '儲存');
+    saveBtn.addEventListener('click', () => {
+      if (!editor) return;
+      const saved = storage.saveProfile(editor.value());
+      audio.play('select');
+      renderAvatar(headAvatar, saved);
+      headName.textContent = saved.name;
+      this.onProfileChange(saved);
+      this.close();
+    });
+
     const showProfile = () => {
       const latest = storage.getProfile() ?? current;
-      const editor = createProfileEditor({ name: latest.name, pixels: latest.pixels, bg: latest.bg }, audio);
-      const status = h('span', { class: 'save-status', 'aria-live': 'polite' });
-      const saveBtn = h('button', { type: 'button', class: 'btn btn-primary' }, '儲存');
-      saveBtn.addEventListener('click', () => {
-        const saved = storage.saveProfile(editor.value());
-        audio.play('select');
-        renderAvatar(headAvatar, saved);
-        headName.textContent = saved.name;
-        status.textContent = '已儲存';
-        window.setTimeout(() => (status.textContent = ''), 1500);
-        this.onProfileChange(saved);
-      });
-      body.replaceChildren(editor.el, h('div', { class: 'panel-actions' }, status, saveBtn));
+      editor = createProfileEditor({ name: latest.name, pixels: latest.pixels, bg: latest.bg }, audio);
+      body.replaceChildren(editor.el);
+      saveBtn.hidden = false;
     };
 
     const showSettings = () => {
+      editor = null;
       body.replaceChildren(buildSettingsSection(this.services, this.onRecordsCleared));
+      saveBtn.hidden = true;
     };
 
     const select = (t: PanelTab) => {
@@ -94,7 +98,7 @@ export class PlayerPanel {
       h('div', { class: 'player-panel-head' }, headAvatar, headName),
       h('div', { class: 'tabs', role: 'tablist' }, tabs.profile, tabs.settings),
       body,
-      h('div', { class: 'panel-actions' }, closeBtn),
+      h('div', { class: 'panel-actions dialog-actions' }, closeBtn, saveBtn),
     );
     select(tab);
     this.handle = openModal(panel, { onClose: () => (this.handle = null) });
