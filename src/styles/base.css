@@ -26,6 +26,12 @@ body {
   padding: 0;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
 body {
   min-height: 100dvh;
   background: var(--bg);
@@ -35,10 +41,26 @@ body {
   line-height: 1.75;
   -webkit-font-smoothing: none;
   -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  overflow-x: hidden;
+}
+
+input {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+canvas {
+  -webkit-touch-callout: none;
 }
 
 body.in-game {
+  position: fixed;
+  inset: 0;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 #app {
