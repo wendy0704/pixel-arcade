@@ -1,6 +1,6 @@
 import { clear, COLORS, drawBevel, drawText } from '../../core/pixel';
 import type { Game, GameContext, PointerInfo } from '../../types/game';
-import { CARD_H, CARD_W, CONFIG, createState, flip, GAP, hideMismatch, HUD, isComplete, type MemoryState } from './logic';
+import { approach, CARD_H, CARD_W, CONFIG, createState, flip, GAP, hideMismatch, HUD, isComplete, type MemoryState } from './logic';
 import { drawCardBack, drawCardFace } from './cards';
 
 const FLIP_TIME = 0.15;
@@ -60,7 +60,7 @@ export function createGame(): Game {
       state.cards.forEach((c, i) => {
         const target = c.open || c.matched ? 1 : 0;
         const step = dt / FLIP_TIME;
-        progress[i] = target > progress[i] ? Math.min(1, progress[i] + step) : Math.max(0, progress[i] - step);
+        progress[i] = approach(progress[i], target, step);
       });
       if (endTimer >= 0) {
         endTimer -= dt;

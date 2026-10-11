@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { canMove, createGrid, maxTile, move, slideLine, spawnTile, tileLayout } from '../src/games/merge/logic';
-import { createState, flip, hideMismatch, isComplete, boardSize } from '../src/games/memory/logic';
+import { approach, createState, flip, hideMismatch, isComplete, boardSize } from '../src/games/memory/logic';
 import { bestMove, chooseMove, createBoard, isDraw, minimax, seriesScore, winner, type Cell } from '../src/games/tictactoe/logic';
 import { HEIGHT, MAX_ANGLE, nextSpeed, paddleBounce, predictY, reflectInto, moveToward, PADDLE_H } from '../src/games/pong/logic';
 import { constant, seeded } from './helpers';
@@ -127,6 +127,19 @@ describe('memory', () => {
       s.cards.forEach((c, i) => c.icon === icon && flip(s, i));
     }
     expect(isComplete(s)).toBe(true);
+  });
+
+  it('flip animation settles on its target instead of oscillating', () => {
+    let p = 0;
+    const seen: number[] = [];
+    for (let i = 0; i < 20; i++) {
+      p = approach(p, 1, 0.111);
+      seen.push(p);
+    }
+    expect(seen.slice(-10).every((v) => v === 1)).toBe(true);
+    expect(approach(1, 1, 0.111)).toBe(1);
+    expect(approach(0, 0, 0.111)).toBe(0);
+    expect(approach(0.95, 0, 0.111)).toBeCloseTo(0.839);
   });
 
   it('computes board size', () => {

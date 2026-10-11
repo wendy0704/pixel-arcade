@@ -80,6 +80,12 @@ export function hideMismatch(state: MemoryState): void {
   state.second = null;
 }
 
+export function approach(current: number, target: number, step: number): number {
+  if (current < target) return Math.min(target, current + step);
+  if (current > target) return Math.max(target, current - step);
+  return current;
+}
+
 export function isComplete(state: MemoryState): boolean {
   return state.pairsFound === state.pairs;
 }
