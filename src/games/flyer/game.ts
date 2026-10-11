@@ -1,6 +1,7 @@
 import { COLORS, drawBevel, drawSprite, drawText } from '../../core/pixel';
 import type { Game, GameContext, PointerInfo } from '../../types/game';
 import {
+  BIRD_SCALE,
   BIRD_X,
   CONFIG,
   createFlyer,
@@ -114,7 +115,7 @@ export function createGame(): Game {
 
       const bob = s.started ? 0 : Math.round(Math.sin(time * 4) * 3);
       const frame = s.alive ? Math.floor(time * 10) % 2 : 0;
-      drawSprite(g, BIRD_FRAMES[frame], BIRD_X, Math.round((s.started ? s.y : START_Y) + bob), BIRD_COLORS);
+      drawSprite(g, BIRD_FRAMES[frame], BIRD_X, Math.round((s.started ? s.y : START_Y) + bob), BIRD_COLORS, BIRD_SCALE);
 
       drawText(g, String(s.score), WIDTH / 2, 20, { size: 16, color: '#ffffff', align: 'center' });
       if (!s.started && Math.floor(time * 2) % 2 === 0) {

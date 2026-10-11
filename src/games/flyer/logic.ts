@@ -4,8 +4,9 @@ export const WIDTH = 240;
 export const HEIGHT = 320;
 export const GROUND = 296;
 export const BIRD_X = 60;
-export const BIRD_W = 12;
-export const BIRD_H = 8;
+export const BIRD_SCALE = 2;
+export const BIRD_W = 12 * BIRD_SCALE;
+export const BIRD_H = 8 * BIRD_SCALE;
 export const PIPE_W = 28;
 export const GRAVITY = 900;
 export const FLAP_VELOCITY = -260;
@@ -64,11 +65,11 @@ export function randomGapY(gap: number, random: () => number): number {
 }
 
 export function hitsPipe(y: number, pipe: Pipe, gap: number): boolean {
-  const left = BIRD_X + 2;
-  const right = BIRD_X + BIRD_W - 2;
+  const left = BIRD_X + 3;
+  const right = BIRD_X + BIRD_W - 3;
   if (right <= pipe.x || left >= pipe.x + PIPE_W) return false;
-  const top = y + 1;
-  const bottom = y + BIRD_H - 1;
+  const top = y + 2;
+  const bottom = y + BIRD_H - 2;
   return top < pipe.gapY - gap / 2 || bottom > pipe.gapY + gap / 2;
 }
 
