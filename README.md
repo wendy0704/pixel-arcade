@@ -2,7 +2,7 @@
 
 在瀏覽器裡遊玩的復古小遊戲合集。所有遊戲皆以 TypeScript 與 Canvas 2D 從零實作，畫面與音效全部由程式即時產生，不使用任何原作素材。
 
-線上版本：`https://<你的 GitHub 帳號>.github.io/pixel-arcade/`
+線上版本：`https://wendy0704.github.io/pixel-arcade/`
 
 ## 收錄遊戲
 
