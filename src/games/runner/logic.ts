@@ -163,3 +163,17 @@ export function stepRunner(state: RunnerState, dt: number, input: RunnerInput, d
   }
   return events;
 }
+
+export const DAY_CYCLE = 700;
+export const NIGHT_START = 500;
+export const FADE = 30;
+
+const smooth = (t: number) => t * t * (3 - 2 * t);
+
+export function nightAmount(score: number): number {
+  const phase = score % DAY_CYCLE;
+  if (phase < NIGHT_START) return 0;
+  if (phase < NIGHT_START + FADE) return smooth((phase - NIGHT_START) / FADE);
+  if (phase < DAY_CYCLE - FADE) return 1;
+  return smooth((DAY_CYCLE - phase) / FADE);
+}

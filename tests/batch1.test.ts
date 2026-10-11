@@ -18,6 +18,10 @@ import { BIRD_FRAMES } from '../src/games/flyer/sprites';
 import {
   chooseObstacle,
   createRunner,
+  DAY_CYCLE,
+  FADE,
+  NIGHT_START,
+  nightAmount,
   makeObstacle,
   nextGap,
   overlaps,
@@ -28,7 +32,8 @@ import {
   GROUND as RUN_GROUND,
   CONFIG as RUNNER,
 } from '../src/games/runner/logic';
-import { BAT_FRAMES, CACTUS_L, CACTUS_S, DUCK_FRAME, RUN_FRAMES } from '../src/games/runner/sprites';
+import { BAT_FRAMES, CACTUS_L, CACTUS_S, DUCK_FRAME, MOON, RUN_FRAMES, SUN } from '../src/games/runner/sprites';
+import { mixColor } from '../src/core/pixel';
 import { formatJudgement, generateSecret, judge, validateGuess } from '../src/games/bulls/logic';
 import { constant, seeded } from './helpers';
 
@@ -214,5 +219,35 @@ describe('1A2B', () => {
 
   it('formats results', () => {
     expect(formatJudgement({ a: 1, b: 2 })).toBe('1A2B');
+  });
+});
+
+describe('runner day and night', () => {
+  it('starts in daylight and turns night every cycle', () => {
+    expect(nightAmount(0)).toBe(0);
+    expect(nightAmount(NIGHT_START - 1)).toBe(0);
+    expect(nightAmount(NIGHT_START + FADE / 2)).toBeCloseTo(0.5);
+    expect(nightAmount(600)).toBe(1);
+    expect(nightAmount(DAY_CYCLE)).toBe(0);
+    expect(nightAmount(DAY_CYCLE + 600)).toBe(1);
+  });
+
+  it('fades smoothly without jumps', () => {
+    for (let score = 0; score < DAY_CYCLE * 2; score++) {
+      expect(Math.abs(nightAmount(score + 1) - nightAmount(score))).toBeLessThan(0.06);
+    }
+  });
+
+  it('sun and moon sprites are rectangular', () => {
+    [SUN, MOON].forEach((f) => expect(rectangular(f)).toBe(true));
+  });
+});
+
+describe('mixColor', () => {
+  it('blends two colours', () => {
+    expect(mixColor('#000000', '#ffffff', 0)).toBe('#000000');
+    expect(mixColor('#000000', '#ffffff', 1)).toBe('#ffffff');
+    expect(mixColor('#000000', '#ffffff', 0.5)).toBe('#808080');
+    expect(mixColor('#ff0000', '#0000ff', 2)).toBe('#0000ff');
   });
 });

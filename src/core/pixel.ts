@@ -77,3 +77,11 @@ export function clear(ctx: CanvasRenderingContext2D, width: number, height: numb
   ctx.fillStyle = color;
   ctx.fillRect(0, 0, width, height);
 }
+
+export function mixColor(from: string, to: string, t: number): string {
+  const a = parseInt(from.slice(1), 16);
+  const b = parseInt(to.slice(1), 16);
+  const k = Math.max(0, Math.min(1, t));
+  const ch = (shift: number) => Math.round(((a >> shift) & 0xff) + ((((b >> shift) & 0xff) - ((a >> shift) & 0xff)) * k));
+  return `#${((ch(16) << 16) | (ch(8) << 8) | ch(0)).toString(16).padStart(6, '0')}`;
+}

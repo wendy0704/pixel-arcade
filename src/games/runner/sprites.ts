@@ -82,3 +82,53 @@ export const BAT_FRAMES: string[][] = [
   ['b............b', 'bb..........bb', 'bbb..bbbb..bbb', '.bbbbbbbbbbbb.', '..bbbwbbwbbb..', '...bbbbbbbb...', '....bbbbbb....', '.....b..b.....', '..............', '..............'],
   ['..............', '..............', '.....bbbb.....', '...bbbbbbbb...', '..bbbwbbwbbb..', '.bbbbbbbbbbbb.', 'bbb.bbbbbb.bbb', 'bb...b..b...bb', 'b............b', '..............'],
 ];
+
+export const SUN = [
+  '....ssss....',
+  '..ssssssss..',
+  '.ssssssssss.',
+  '.ssssssssss.',
+  'ssssssssssss',
+  'ssssssssssss',
+  'ssssssssssss',
+  'ssssssssssss',
+  '.ssssssssss.',
+  '.ssssssssss.',
+  '..ssssssss..',
+  '....ssss....',
+];
+
+export const MOON = [
+  '...mmmm...',
+  '.mmmm.....',
+  '.mmm......',
+  'mmm.......',
+  'mmm.......',
+  'mmm.......',
+  'mmm.......',
+  '.mmm......',
+  '.mmmm.....',
+  '...mmmm...',
+];
+
+export const DAY = {
+  sky: '#cfe6f7',
+  hill: '#a6c8e0',
+  line: '#4a4a78',
+  dots: '#7a8aa8',
+  runner: '#1b6fc2',
+  cactus: '#23864a',
+  bat: '#c2185b',
+  text: '#2a2a48',
+};
+
+export const NIGHT = {
+  sky: COLORS.bg,
+  hill: '#1a1a36',
+  line: COLORS.panelLight,
+  dots: COLORS.muted,
+  runner: COLORS.cyan,
+  cactus: COLORS.green,
+  bat: COLORS.pink,
+  text: COLORS.text,
+};
