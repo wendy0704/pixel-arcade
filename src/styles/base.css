@@ -296,9 +296,6 @@ input {
   color: var(--gold);
 }
 
-.credits {
-  color: var(--muted);
-}
 
 @media (prefers-reduced-motion: reduce) {
   .blink {
