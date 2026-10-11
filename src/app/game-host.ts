@@ -11,6 +11,7 @@ import {
   type GameResult,
   type PointerInfo,
 } from '../types/game';
+import { avatarCanvas } from './avatar-view';
 import { h, ICONS, svgIcon } from './dom';
 import { OverlayLayer } from './overlays';
 import { goToLobby } from './router';
@@ -164,7 +165,7 @@ export class GameHost {
           h('div', { class: 'score-item' }, h('span', { class: 'label pixel' }, 'SCORE'), this.scoreEl),
           h('div', { class: 'score-item best-item' }, h('span', { class: 'label pixel' }, 'BEST'), this.bestEl),
         ),
-        h('div', { class: 'bar-right' }, this.pauseBtn, this.muteBtn, fsBtn),
+        h('div', { class: 'bar-right' }, this.barAvatar(), this.pauseBtn, this.muteBtn, fsBtn),
       ),
       this.stage,
       this.pad?.el,
@@ -356,6 +357,7 @@ export class GameHost {
       { class: 'panel panel-over' },
       h('h2', { class: `panel-heading pixel ${headline === 'GAME OVER' ? 'is-over' : 'is-clear'}` }, headline),
       isNew && h('p', { class: 'new-record pixel blink' }, 'NEW RECORD!'),
+      isNew && this.recordHolder(),
       h(
         'dl',
         { class: 'result' },
@@ -374,6 +376,24 @@ export class GameHost {
       ),
     );
     this.overlay.show(panel);
+  }
+
+  private barAvatar(): HTMLElement | null {
+    const profile = this.services.storage.getProfile();
+    if (!profile) return null;
+    const el = avatarCanvas(profile, 28, 'bar-avatar');
+    el.setAttribute('title', profile.name);
+    return el;
+  }
+
+  private recordHolder(): HTMLElement {
+    const profile = this.services.storage.getProfile();
+    return h(
+      'p',
+      { class: 'record-holder' },
+      profile && avatarCanvas(profile, 24),
+      `${profile?.name ?? 'PLAYER'} 刷新了紀錄！`,
+    );
   }
 
   private backToTitle(): void {

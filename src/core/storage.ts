@@ -1,4 +1,5 @@
 import { DIFFICULTIES, type Difficulty, type ScoreOrder } from '../types/game';
+import { isValidBg, isValidPixels, NAME_MAX, normalizeName } from './avatar';
 
 export interface Settings {
   version: 1;
@@ -13,6 +14,16 @@ export interface ScoreRecord {
 }
 
 export type HighScores = Record<string, Partial<Record<Difficulty, ScoreRecord>>>;
+
+export interface Profile {
+  version: 1;
+  name: string;
+  pixels: string;
+  bg: string;
+  createdAt: string;
+}
+
+export type ProfileDraft = Pick<Profile, 'name' | 'pixels' | 'bg'>;
 export type LastDifficulty = Record<string, Difficulty>;
 
 export interface KeyValueBackend {
@@ -26,6 +37,7 @@ export const KEYS = {
   favorites: 'pa.favorites',
   highscores: 'pa.highscores',
   lastDifficulty: 'pa.lastDifficulty',
+  profile: 'pa.profile',
 } as const;
 
 export const DEFAULT_SETTINGS: Settings = { version: 1, muted: false, volume: 0.6, crt: true };
@@ -89,6 +101,18 @@ const isHighScores = (v: unknown): v is HighScores =>
       isObject(perGame) &&
       Object.entries(perGame).every(([d, rec]) => DIFFICULTIES.includes(d as Difficulty) && isScoreRecord(rec)),
   );
+
+const isProfile = (v: unknown): v is Profile =>
+  isObject(v) &&
+  v.version === 1 &&
+  typeof v.name === 'string' &&
+  v.name.trim().length > 0 &&
+  Array.from(v.name).length <= NAME_MAX &&
+  typeof v.pixels === 'string' &&
+  isValidPixels(v.pixels) &&
+  typeof v.bg === 'string' &&
+  isValidBg(v.bg) &&
+  typeof v.createdAt === 'string';
 
 const isLastDifficulty = (v: unknown): v is LastDifficulty =>
   isObject(v) && Object.values(v).every((d) => DIFFICULTIES.includes(d as Difficulty));
@@ -170,6 +194,32 @@ export class GameStorage {
 
   clearHighScores(): void {
     this.write(KEYS.highscores, {});
+  }
+
+  getProfile(): Profile | null {
+    try {
+      const raw = this.backend.getItem(KEYS.profile);
+      if (raw === null) return null;
+      const parsed: unknown = JSON.parse(raw);
+      if (isProfile(parsed)) return parsed;
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  saveProfile(draft: ProfileDraft): Profile {
+    const name = normalizeName(draft.name) || 'PLAYER';
+    if (!isValidPixels(draft.pixels) || !isValidBg(draft.bg)) throw new Error('invalid avatar');
+    const profile: Profile = {
+      version: 1,
+      name,
+      pixels: draft.pixels,
+      bg: draft.bg.toLowerCase(),
+      createdAt: this.getProfile()?.createdAt ?? new Date().toISOString(),
+    };
+    this.write(KEYS.profile, profile);
+    return profile;
   }
 
   getLastDifficulty(id: string): Difficulty | undefined {

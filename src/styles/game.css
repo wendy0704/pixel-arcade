@@ -439,3 +439,21 @@
     pointer-events: auto;
   }
 }
+
+.bar-avatar {
+  border-width: 2px;
+}
+
+.record-holder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--gold);
+}
+
+@media (max-width: 399px) {
+  .bar-avatar {
+    display: none;
+  }
+}

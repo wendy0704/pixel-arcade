@@ -1,9 +1,11 @@
+import { blankPixels, BG_COLORS } from '../core/avatar';
 import { GAMES, formatScore, type GameEntry } from '../core/registry';
 import { CATEGORY_LABEL, type Category } from '../types/game';
 import { h, ICONS, svgIcon } from './dom';
 import { gameHref } from './router';
 import type { Services } from './services';
-import { SettingsPanel } from './settings-panel';
+import { avatarCanvas, renderAvatar } from './avatar-view';
+import { openOnboarding, PlayerPanel } from './player-panel';
 
 type Filter = 'all' | Category;
 
@@ -42,13 +44,20 @@ export class Lobby {
   private query = '';
   private filter: Filter = 'all';
   private favOnly = false;
-  private settings: SettingsPanel;
+  private panel: PlayerPanel;
+  private playerAvatar: HTMLCanvasElement | null = null;
+  private playerName: HTMLElement | null = null;
+  private playerBtn: HTMLButtonElement | null = null;
 
   constructor(
     private container: HTMLElement,
     private services: Services,
   ) {
-    this.settings = new SettingsPanel(services, () => this.renderGrid());
+    this.panel = new PlayerPanel(
+      services,
+      () => this.refreshPlayer(),
+      () => this.renderGrid(),
+    );
   }
 
   mount(focusId?: string): void {
@@ -84,13 +93,10 @@ export class Lobby {
       this.renderGrid();
     });
 
-    const settingsBtn = h(
-      'button',
-      { type: 'button', class: 'icon-btn settings-btn', 'aria-label': '設定' },
-      svgIcon(ICONS.gear),
-      h('span', { class: 'icon-btn-text' }, '設定'),
-    );
-    settingsBtn.addEventListener('click', () => this.settings.open());
+    this.playerAvatar = avatarCanvas({ pixels: blankPixels(), bg: BG_COLORS[0] }, 40);
+    this.playerName = h('span', { class: 'player-name' });
+    this.playerBtn = h('button', { type: 'button', class: 'player-btn' }, this.playerAvatar, this.playerName);
+    this.playerBtn.addEventListener('click', () => this.panel.open());
 
     this.grid = h('div', { class: 'card-grid', role: 'list' });
     this.grid.addEventListener('keydown', this.onGridKey);
@@ -108,7 +114,7 @@ export class Lobby {
           h('p', { class: 'marquee-kicker pixel' }, 'INSERT COIN'),
           h('h1', { class: 'marquee-title' }, h('span', { class: 'pixel neon' }, 'PIXEL ARCADE'), h('span', { class: 'marquee-sub' }, '像素街機')),
         ),
-        settingsBtn,
+        this.playerBtn,
       ),
       h(
         'section',
@@ -120,11 +126,21 @@ export class Lobby {
     );
     this.container.append(this.root);
     this.renderGrid();
+    this.refreshPlayer();
     if (focusId) this.grid.querySelector<HTMLElement>(`[data-id="${focusId}"] .card-link`)?.focus({ preventScroll: false });
+    if (!this.services.storage.getProfile()) openOnboarding(this.services, () => this.refreshPlayer());
+  }
+
+  private refreshPlayer(): void {
+    const profile = this.services.storage.getProfile();
+    if (!this.playerAvatar || !this.playerName || !this.playerBtn) return;
+    if (profile) renderAvatar(this.playerAvatar, profile);
+    this.playerName.textContent = profile?.name ?? '建立檔案';
+    this.playerBtn.setAttribute('aria-label', profile ? `玩家 ${profile.name}，開啟個人檔案與設定` : '建立玩家檔案');
   }
 
   unmount(): void {
-    this.settings.close();
+    this.panel.close();
     this.root?.remove();
     this.root = null;
     this.grid = null;
