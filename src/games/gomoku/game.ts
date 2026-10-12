@@ -26,6 +26,7 @@ export function createGame(): Game {
   let cpuTimer = 0;
   let cursor = 7 * N + 7;
   let preview = -1;
+  let touchStart = -1;
   let showCursor = false;
   let lastMove = -1;
   let winLine: number[] = [];
@@ -148,7 +149,14 @@ export function createGame(): Game {
         }
         return;
       }
-      if (e.type !== 'down' || idx < 0 || phase !== 'player' || board[idx]) return;
+      if (e.type === 'down') {
+        touchStart = idx;
+        return;
+      }
+      if (e.type !== 'up') return;
+      const started = touchStart;
+      touchStart = -1;
+      if (idx < 0 || idx !== started || phase !== 'player' || board[idx]) return;
       if (preview === idx) playerPlace(idx);
       else {
         preview = idx;

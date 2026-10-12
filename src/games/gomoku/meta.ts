@@ -14,8 +14,9 @@ export const meta: GameMeta = {
     { keys: '方向鍵', action: '移動游標' },
     { keys: '空白鍵 / Z', action: '在游標位置落子' },
   ],
-  touchHint: '點一下預覽位置，再點一次確認落子',
+  touchHint: '點一下預覽位置，再點一次確認落子；雙指可以放大縮小棋盤',
   padLayout: 'none',
+  zoomable: true,
   size: () => ({ width: 240, height: 294 }),
   drawThumbnail(ctx, w, h) {
     ctx.fillStyle = '#c8964e';

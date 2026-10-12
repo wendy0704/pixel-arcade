@@ -52,6 +52,19 @@ const BUTTONS: { button: Button; rect: Rect }[] = [
 
 const inside = (r: Rect, x: number, y: number) => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
 
+interface Hit {
+  kind: 'cell' | 'button';
+  index: number;
+}
+
+function hitTest(x: number, y: number): Hit | null {
+  if (x >= BOARD_X && x < BOARD_X + BOARD && y >= BOARD_Y && y < BOARD_Y + BOARD) {
+    return { kind: 'cell', index: Math.floor((y - BOARD_Y) / CELL) * SIZE + Math.floor((x - BOARD_X) / CELL) };
+  }
+  const index = BUTTONS.findIndex((b) => inside(b.rect, x, y));
+  return index >= 0 ? { kind: 'button', index } : null;
+}
+
 export function createGame(): Game {
   let ctx!: GameContext;
   let grid: Grid = [];
@@ -68,6 +81,7 @@ export function createGame(): Game {
   let finished = false;
   let pressed = -1;
   let pressTimer = 0;
+  let pending: Hit | null = null;
 
   const refresh = () => {
     conflicts = findConflicts(grid);
@@ -151,6 +165,7 @@ export function createGame(): Game {
       finished = false;
       pressed = -1;
       pressTimer = 0;
+      pending = null;
       refresh();
     },
 
@@ -197,15 +212,17 @@ export function createGame(): Game {
     },
 
     onPointer(e: PointerInfo) {
-      if (e.type !== 'down' || won) return;
-      if (e.x >= BOARD_X && e.x < BOARD_X + BOARD && e.y >= BOARD_Y && e.y < BOARD_Y + BOARD) {
-        const c = Math.floor((e.x - BOARD_X) / CELL);
-        const r = Math.floor((e.y - BOARD_Y) / CELL);
-        cursor = r * SIZE + c;
+      if (won || (e.type !== 'down' && e.type !== 'up')) return;
+      const target = hitTest(e.x, e.y);
+      if (e.type === 'down') {
+        pending = target;
         return;
       }
-      const index = BUTTONS.findIndex((b) => inside(b.rect, e.x, e.y));
-      if (index >= 0) press(index);
+      const same = pending !== null && target !== null && pending.kind === target.kind && pending.index === target.index;
+      pending = null;
+      if (!same || !target) return;
+      if (target.kind === 'cell') cursor = target.index;
+      else press(target.index);
     },
 
     render() {

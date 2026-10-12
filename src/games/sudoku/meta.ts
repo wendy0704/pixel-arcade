@@ -30,8 +30,9 @@ export const meta: GameMeta = {
     { keys: 'N / 空白鍵', action: '切換筆記模式' },
     { keys: '滑鼠', action: '點格子選取，再點下方數字填入' },
   ],
-  touchHint: '點格子選取，再點下方數字填入',
+  touchHint: '點格子選取，再點下方數字填入；雙指可以放大縮小',
   padLayout: 'none',
+  zoomable: true,
   size: () => ({ width: 240, height: 320 }),
   drawThumbnail(ctx, w, h) {
     ctx.fillStyle = COLORS.bg;
