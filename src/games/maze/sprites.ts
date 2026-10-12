@@ -60,7 +60,19 @@ export const BEETLE_FRAMES = [
   ],
 ];
 
-export const STAR = ['...y...', '..yyy..', 'yyyyyyy', '.yyyyy.', '..yyy..', '.yy.yy.', 'yy...yy'];
+export const STAR = [
+  '.....y.....',
+  '.....y.....',
+  '....yyy....',
+  '....yyy....',
+  'yyyyyyyyyyy',
+  '.yyyyyyyyy.',
+  '..yyyyyyy..',
+  '...yyyyy...',
+  '...yyyyy...',
+  '..yyy.yyy..',
+  '..yy...yy..',
+];
 
 export const PERSONA_COLORS: Record<Persona, string> = {
   stalker: COLORS.red,

@@ -18,13 +18,24 @@ describe('rocks', () => {
     expect(rocks.wrappedDistance({ x: 2, y: 10 }, { x: 318, y: 10 })).toBe(4);
   });
 
-  it('caps ship speed and turns', () => {
+  it('moves in the pressed direction and glides to a stop', () => {
     const ship = rocks.createShip();
-    for (let i = 0; i < 600; i++) rocks.stepShip(ship, { left: false, right: false, thrust: true }, 1 / 60);
-    expect(Math.hypot(ship.vx, ship.vy)).toBeLessThanOrEqual(rocks.MAX_SPEED + 1e-9);
-    const turn = rocks.createShip();
-    rocks.stepShip(turn, { left: false, right: true, thrust: false }, 0.5);
-    expect(turn.angle).toBeCloseTo(-Math.PI / 2 + rocks.TURN_SPEED * 0.5);
+    for (let i = 0; i < 120; i++) rocks.stepShip(ship, { dx: 1, dy: 1, aim: null }, 1 / 60);
+    expect(Math.hypot(ship.vx, ship.vy)).toBeCloseTo(rocks.MOVE_SPEED, 0);
+    expect(ship.angle).toBeCloseTo(Math.PI / 4);
+    for (let i = 0; i < 120; i++) rocks.stepShip(ship, { dx: 0, dy: 0, aim: null }, 1 / 60);
+    expect(Math.hypot(ship.vx, ship.vy)).toBeLessThan(1);
+    expect(ship.thrusting).toBe(false);
+  });
+
+  it('turns toward the aim along the shortest way', () => {
+    expect(rocks.turnToward(0, 1, 0.2)).toBeCloseTo(0.2);
+    expect(rocks.turnToward(0, 0.1, 0.2)).toBeCloseTo(0.1);
+    expect(rocks.turnToward(3, -3, 0.2)).toBeCloseTo(3.2);
+    const ship = rocks.createShip();
+    for (let i = 0; i < 60; i++) rocks.stepShip(ship, { dx: -1, dy: 0, aim: Math.PI / 2 }, 1 / 60);
+    expect(ship.angle).toBeCloseTo(Math.PI / 2);
+    expect(ship.vx).toBeLessThan(0);
   });
 
   it('splits large rocks into two smaller ones and destroys small ones', () => {
@@ -40,9 +51,9 @@ describe('rocks', () => {
     const r = seeded(2);
     const ship = rocks.createShip();
     const wave = rocks.spawnWave(1, 'normal', ship, r);
-    expect(wave).toHaveLength(4);
+    expect(wave).toHaveLength(3);
     wave.forEach((rock) => expect(rocks.wrappedDistance(rock, ship)).toBeGreaterThanOrEqual(rocks.SAFE_DISTANCE));
-    expect(rocks.rocksForWave(3, 'normal')).toBe(6);
+    expect(rocks.rocksForWave(3, 'normal')).toBe(5);
     expect(rocks.rocksForWave(99, 'hard')).toBe(11);
   });
 

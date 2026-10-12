@@ -48,7 +48,7 @@ export function createGame(): Game {
       winLine = five;
       phase = 'over';
       won = who === BLACK;
-      message = won ? 'YOU WIN' : 'CPU WINS';
+      message = won ? 'YOU WIN' : 'NPC WINS';
       ctx.audio.play(won ? 'clear' : 'die');
       if (won) ctx.setScore(winScore(playerMoves));
       endTimer = END_DELAY;
@@ -61,7 +61,7 @@ export function createGame(): Game {
       return;
     }
     phase = who === BLACK ? 'cpu' : 'player';
-    message = phase === 'cpu' ? 'CPU...' : 'YOUR TURN';
+    message = phase === 'cpu' ? 'NPC...' : 'YOUR TURN';
     cpuTimer = CPU_DELAY;
   };
 
@@ -165,7 +165,7 @@ export function createGame(): Game {
       drawDisc(g, 14, 14, 5, '#141420');
       drawText(g, 'YOU', 24, 10, { color: phase === 'player' ? COLORS.cyan : COLORS.text });
       drawDisc(g, WIDTH - 14, 14, 5, '#f0f0f0');
-      drawText(g, 'CPU', WIDTH - 24, 10, { color: phase === 'cpu' ? COLORS.cyan : COLORS.text, align: 'right' });
+      drawText(g, 'NPC', WIDTH - 24, 10, { color: phase === 'cpu' ? COLORS.cyan : COLORS.text, align: 'right' });
 
       g.fillStyle = '#c8964e';
       g.fillRect(BOARD_X - 11, BOARD_Y - 11, (N - 1) * GAP + 22, (N - 1) * GAP + 22);
@@ -215,7 +215,7 @@ export function createGame(): Game {
       }
 
       const text = preview >= 0 && phase === 'player' ? 'TAP AGAIN TO PLACE' : message;
-      const color = message === 'YOU WIN' ? COLORS.cyan : message === 'CPU WINS' ? COLORS.red : COLORS.text;
+      const color = message === 'YOU WIN' ? COLORS.cyan : message === 'NPC WINS' ? COLORS.red : COLORS.text;
       drawText(g, text, WIDTH / 2, HEIGHT - 18, { color, align: 'center' });
     },
 

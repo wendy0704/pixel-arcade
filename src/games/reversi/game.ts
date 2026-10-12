@@ -42,7 +42,7 @@ export function createGame(): Game {
     if (isOver(board)) {
       phase = 'over';
       const { black, white } = count(board);
-      say(black > white ? 'YOU WIN' : black < white ? 'CPU WINS' : 'DRAW', 99);
+      say(black > white ? 'YOU WIN' : black < white ? 'NPC WINS' : 'DRAW', 99);
       ctx.audio.play(black > white ? 'clear' : black < white ? 'die' : 'select');
       endTimer = END_DELAY;
       return;
@@ -52,7 +52,7 @@ export function createGame(): Game {
       phase = next === BLACK ? 'player' : 'cpu';
     } else {
       phase = justMoved === BLACK ? 'player' : 'cpu';
-      say(next === BLACK ? 'YOU PASS' : 'CPU PASSES');
+      say(next === BLACK ? 'YOU PASS' : 'NPC PASSES');
       ctx.audio.play('reveal');
     }
     if (phase === 'cpu') cpuTimer = CPU_DELAY;
@@ -154,7 +154,7 @@ export function createGame(): Game {
       drawDisc(g, 16, 14, 6, '#141420');
       drawText(g, `YOU ${black}`, 26, 10, { color: phase === 'player' ? COLORS.cyan : COLORS.text });
       drawDisc(g, WIDTH - 16, 14, 6, '#f0f0f0');
-      drawText(g, `${white} CPU`, WIDTH - 26, 10, { color: phase === 'cpu' ? COLORS.cyan : COLORS.text, align: 'right' });
+      drawText(g, `${white} NPC`, WIDTH - 26, 10, { color: phase === 'cpu' ? COLORS.cyan : COLORS.text, align: 'right' });
 
       g.fillStyle = '#1d6b45';
       g.fillRect(BOARD_X - 3, BOARD_Y - 3, N * CELL + 6, N * CELL + 6);
@@ -198,8 +198,8 @@ export function createGame(): Game {
         g.lineWidth = 2;
         g.strokeRect(BOARD_X + (cursor % N) * CELL + 1, BOARD_Y + Math.floor(cursor / N) * CELL + 1, CELL - 2, CELL - 2);
       }
-      const text = messageTimer > 0 ? message : phase === 'player' ? 'YOUR TURN' : phase === 'cpu' ? 'CPU...' : message;
-      const color = text === 'YOU WIN' ? COLORS.cyan : text === 'CPU WINS' ? COLORS.red : text.includes('PASS') ? COLORS.gold : COLORS.text;
+      const text = messageTimer > 0 ? message : phase === 'player' ? 'YOUR TURN' : phase === 'cpu' ? 'NPC...' : message;
+      const color = text === 'YOU WIN' ? COLORS.cyan : text === 'NPC WINS' ? COLORS.red : text.includes('PASS') ? COLORS.gold : COLORS.text;
       drawText(g, text, WIDTH / 2, HEIGHT - 20, { color, align: 'center' });
     },
 

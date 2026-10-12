@@ -44,7 +44,7 @@ export function createGame(): Game {
     const playerFirst = round % 2 === 1;
     phase = playerFirst ? 'player' : 'cpu';
     cpuTimer = CPU_DELAY;
-    message = playerFirst ? 'YOUR TURN' : 'CPU...';
+    message = playerFirst ? 'YOUR TURN' : 'NPC...';
   };
 
   const release = (col: number, who: 1 | 2) => {
@@ -70,7 +70,7 @@ export function createGame(): Game {
           ctx.audio.play('clear');
         } else {
           losses++;
-          message = 'CPU WINS';
+          message = 'NPC WINS';
           ctx.audio.play('die');
         }
       } else {
@@ -86,7 +86,7 @@ export function createGame(): Game {
     if (who === PLAYER) {
       phase = 'cpu';
       cpuTimer = CPU_DELAY;
-      message = 'CPU...';
+      message = 'NPC...';
     } else {
       phase = 'player';
       message = 'YOUR TURN';
@@ -178,7 +178,6 @@ export function createGame(): Game {
         g.fillStyle = '#ffffff';
         g.fillRect(cellX(cursor) - 1, HOVER_Y + 15, 2, 3);
       }
-      if (falling) drawDisc(g, cellX(falling.col), falling.y, 12, COLOR[falling.who]);
 
       g.fillStyle = '#1f2f8a';
       g.fillRect(BOARD_X - 4, BOARD_Y - 4, COLS * CELL + 8, ROWS * CELL + 8);
@@ -194,7 +193,11 @@ export function createGame(): Game {
           if (who) drawDisc(g, cellX(c) - 3, cellY(r) - 3, 3, lit ? '#ffffff' : who === PLAYER ? '#ff8ac0' : '#ffe98a');
         }
       }
-      const color = message === 'YOU WIN' ? COLORS.cyan : message === 'CPU WINS' ? COLORS.red : COLORS.text;
+      if (falling) {
+        drawDisc(g, cellX(falling.col), falling.y, 12, COLOR[falling.who]);
+        drawDisc(g, cellX(falling.col) - 3, falling.y - 3, 3, falling.who === PLAYER ? '#ff8ac0' : '#ffe98a');
+      }
+      const color = message === 'YOU WIN' ? COLORS.cyan : message === 'NPC WINS' ? COLORS.red : COLORS.text;
       drawText(g, message, WIDTH / 2, HEIGHT - 18, { color, align: 'center' });
     },
 

@@ -170,7 +170,7 @@ export function createGame(): Game {
       drawText(g, String(playerPoints), WIDTH / 4, 16, { size: 24, color: COLORS.cyan, align: 'center' });
       drawText(g, String(cpuPoints), (WIDTH * 3) / 4, 16, { size: 24, color: COLORS.pink, align: 'center' });
       drawText(g, 'YOU', WIDTH / 4, 46, { color: COLORS.muted, align: 'center' });
-      drawText(g, 'CPU', (WIDTH * 3) / 4, 46, { color: COLORS.muted, align: 'center' });
+      drawText(g, 'NPC', (WIDTH * 3) / 4, 46, { color: COLORS.muted, align: 'center' });
 
       g.fillStyle = COLORS.cyan;
       g.fillRect(PLAYER_X, Math.round(playerY - PADDLE_H / 2), PADDLE_W, PADDLE_H);

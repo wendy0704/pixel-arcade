@@ -1,5 +1,5 @@
 import { clear, COLORS, drawText } from '../../core/pixel';
-import type { Game, GameContext } from '../../types/game';
+import type { Game, GameContext, PointerInfo } from '../../types/game';
 import {
   type Bullet,
   circlesTouch,
@@ -61,6 +61,7 @@ export function createGame(): Game {
   let endTimer = -1;
   let finished = false;
   let time = 0;
+  let pointer: { x: number; y: number } | null = null;
 
   const burst = (x: number, y: number, count: number, color: string, speed = 60) => {
     for (let i = 0; i < count; i++) {
@@ -153,6 +154,7 @@ export function createGame(): Game {
       fireTimer = 0;
       hyperTimer = 0;
       waveTimer = 0;
+      pointer = null;
       endTimer = -1;
       finished = false;
       time = 0;
@@ -187,8 +189,18 @@ export function createGame(): Game {
       hyperTimer -= dt;
       if (alive) {
         if (shield > 0) shield -= dt;
-        stepShip(ship, { left: input.isDown('left'), right: input.isDown('right'), thrust: input.isDown('up') }, dt);
-        const wantsFire = input.wasPressed('primary') || (input.isDown('primary') && fireTimer <= 0);
+        const aim = pointer ? Math.atan2(pointer.y - ship.y, pointer.x - ship.x) : null;
+        stepShip(
+          ship,
+          {
+            dx: Number(input.isDown('right')) - Number(input.isDown('left')),
+            dy: Number(input.isDown('down')) - Number(input.isDown('up')),
+            aim,
+          },
+          dt,
+        );
+        const aimed = aim === null || Math.abs(Math.atan2(Math.sin(aim - ship.angle), Math.cos(aim - ship.angle))) < 0.35;
+        const wantsFire = (input.isDown('primary') || pointer !== null) && aimed;
         if (wantsFire && fireTimer <= 0 && bullets.length < MAX_BULLETS) {
           bullets.push(fireBullet(ship));
           fireTimer = FIRE_COOLDOWN;
@@ -225,7 +237,7 @@ export function createGame(): Game {
       }
 
       if (alive && shield <= 0) {
-        const ri = rocks.findIndex((r) => circlesTouch(ship, SHIP_R - 1, r, ROCK_RADIUS[r.size] * 0.85));
+        const ri = rocks.findIndex((r) => circlesTouch(ship, SHIP_R - 2, r, ROCK_RADIUS[r.size] * 0.8));
         if (ri >= 0) {
           breakRock(ri);
           shipDies();
@@ -241,6 +253,11 @@ export function createGame(): Game {
           ctx.audio.play('start');
         }
       }
+    },
+
+    onPointer(e: PointerInfo) {
+      if (e.type === 'down' || (e.type === 'move' && pointer)) pointer = { x: e.x, y: e.y };
+      else if (e.type === 'up') pointer = null;
     },
 
     render() {

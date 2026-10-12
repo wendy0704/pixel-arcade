@@ -435,7 +435,7 @@ export function createGame(): Game {
           g.fillStyle = '#ffd8a8';
           g.fillRect(px(x) + 5, py(y) + 5, 2, 2);
         } else if (blink || ready > 0) {
-          drawSprite(g, STAR, px(x) + 2, py(y) + 2, { y: COLORS.gold });
+          drawSprite(g, STAR, px(x) + 1, py(y) + 1, { y: COLORS.gold });
         }
       }
 

@@ -2,7 +2,25 @@ import { COLORS } from '../../core/pixel';
 
 export const ICONS: { rows: string[]; color: string }[] = [
   { color: COLORS.red, rows: ['.XX..XX.', 'XXXXXXXX', 'XXXXXXXX', 'XXXXXXXX', '.XXXXXX.', '..XXXX..', '...XX...', '........'] },
-  { color: COLORS.gold, rows: ['...XX...', '...XX...', 'XXXXXXXX', '.XXXXXX.', '..XXXX..', '.XXXXXX.', '.XX..XX.', 'X......X'] },
+  {
+    color: COLORS.gold,
+    rows: [
+      '.......X.......',
+      '.......X.......',
+      '.......X.......',
+      '......XXX......',
+      '......XXX......',
+      'XXXXXXXXXXXXXXX',
+      '.XXXXXXXXXXXXX.',
+      '...XXXXXXXXX...',
+      '....XXXXXXX....',
+      '....XXXXXXX....',
+      '....XXXXXXX....',
+      '....XXX.XXX....',
+      '...XX.....XX...',
+      '..XX.......XX..',
+    ],
+  },
   { color: COLORS.cyan, rows: ['........', '.XXXXXX.', 'XX.XX.XX', 'XXXXXXXX', '.XXXXXX.', '..XXXX..', '...XX...', '........'] },
   { color: COLORS.orange, rows: ['........', '.XXX....', 'X...X...', 'X...XXXX', 'X...X.XX', '.XXX..X.', '........', '........'] },
   { color: COLORS.text, rows: ['.......X', '......XX', '.....XX.', 'X...XX..', '.X.XX...', '..XX....', '.XXX....', 'X..X....'] },

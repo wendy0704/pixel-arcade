@@ -3,16 +3,15 @@ import type { Difficulty } from '../../types/game';
 export const WIDTH = 320;
 export const HEIGHT = 320;
 export const SHIP_R = 6;
-export const TURN_SPEED = 4.2;
-export const THRUST = 200;
-export const DRAG = 0.6;
-export const MAX_SPEED = 210;
+export const TURN_SPEED = 12;
+export const MOVE_SPEED = 130;
+export const ACCEL = 6;
 export const BULLET_SPEED = 280;
 export const BULLET_LIFE = 0.85;
-export const MAX_BULLETS = 4;
-export const FIRE_COOLDOWN = 0.22;
+export const MAX_BULLETS = 6;
+export const FIRE_COOLDOWN = 0.18;
 export const HYPER_COOLDOWN = 2;
-export const RESPAWN_SHIELD = 2.5;
+export const RESPAWN_SHIELD = 3;
 export const LIVES = 3;
 export const EXTRA_LIFE_EVERY = 5000;
 export const SAFE_DISTANCE = 90;
@@ -24,9 +23,9 @@ export const ROCK_POINTS: Record<RockSize, number> = { 0: 20, 1: 50, 2: 100 };
 const ROCK_SPEED: Record<RockSize, [number, number]> = { 0: [25, 45], 1: [45, 75], 2: [75, 110] };
 
 export const CONFIG: Record<Difficulty, { startRocks: number; speed: number }> = {
-  easy: { startRocks: 3, speed: 0.8 },
-  normal: { startRocks: 4, speed: 1 },
-  hard: { startRocks: 5, speed: 1.25 },
+  easy: { startRocks: 2, speed: 0.6 },
+  normal: { startRocks: 3, speed: 0.8 },
+  hard: { startRocks: 4, speed: 1 },
 };
 
 export interface Vec {
@@ -57,9 +56,9 @@ export interface Bullet extends Vec {
 }
 
 export interface ShipInput {
-  left: boolean;
-  right: boolean;
-  thrust: boolean;
+  dx: number;
+  dy: number;
+  aim: number | null;
 }
 
 export function wrap(value: number, size: number): number {
@@ -78,21 +77,24 @@ export function createShip(): Ship {
   return { x: WIDTH / 2, y: HEIGHT / 2, vx: 0, vy: 0, angle: -Math.PI / 2, thrusting: false };
 }
 
+export function turnToward(angle: number, target: number, maxStep: number): number {
+  let diff = (target - angle) % (Math.PI * 2);
+  if (diff > Math.PI) diff -= Math.PI * 2;
+  if (diff < -Math.PI) diff += Math.PI * 2;
+  if (Math.abs(diff) <= maxStep) return target;
+  return angle + Math.sign(diff) * maxStep;
+}
+
 export function stepShip(ship: Ship, input: ShipInput, dt: number): void {
-  ship.angle += (Number(input.right) - Number(input.left)) * TURN_SPEED * dt;
-  ship.thrusting = input.thrust;
-  if (input.thrust) {
-    ship.vx += Math.cos(ship.angle) * THRUST * dt;
-    ship.vy += Math.sin(ship.angle) * THRUST * dt;
-  }
-  const damp = Math.exp(-DRAG * dt);
-  ship.vx *= damp;
-  ship.vy *= damp;
-  const speed = Math.hypot(ship.vx, ship.vy);
-  if (speed > MAX_SPEED) {
-    ship.vx = (ship.vx / speed) * MAX_SPEED;
-    ship.vy = (ship.vy / speed) * MAX_SPEED;
-  }
+  const len = Math.hypot(input.dx, input.dy);
+  const tx = len ? (input.dx / len) * MOVE_SPEED : 0;
+  const ty = len ? (input.dy / len) * MOVE_SPEED : 0;
+  const k = Math.min(1, ACCEL * dt);
+  ship.vx += (tx - ship.vx) * k;
+  ship.vy += (ty - ship.vy) * k;
+  ship.thrusting = len > 0;
+  const target = input.aim ?? (len ? Math.atan2(input.dy, input.dx) : null);
+  if (target !== null) ship.angle = turnToward(ship.angle, target, TURN_SPEED * dt);
   ship.x = wrap(ship.x + ship.vx * dt, WIDTH);
   ship.y = wrap(ship.y + ship.vy * dt, HEIGHT);
 }

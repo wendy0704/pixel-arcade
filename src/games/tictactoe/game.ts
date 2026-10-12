@@ -37,7 +37,7 @@ export function createGame(): Game {
     const playerFirst = round % 2 === 1;
     phase = playerFirst ? 'player' : 'cpu';
     cpuTimer = CPU_DELAY;
-    message = playerFirst ? 'YOUR TURN' : 'CPU...';
+    message = playerFirst ? 'YOUR TURN' : 'NPC...';
   };
 
   const settle = (): boolean => {
@@ -50,7 +50,7 @@ export function createGame(): Game {
         ctx.audio.play('clear');
       } else {
         losses++;
-        message = 'CPU WINS';
+        message = 'NPC WINS';
         ctx.audio.play('die');
       }
     } else if (isDraw(board)) {
@@ -73,7 +73,7 @@ export function createGame(): Game {
     if (!settle()) {
       phase = 'cpu';
       cpuTimer = CPU_DELAY;
-      message = 'CPU...';
+      message = 'NPC...';
     }
   };
 
@@ -182,7 +182,7 @@ export function createGame(): Game {
         g.lineWidth = 2;
         g.strokeRect(BOARD_X + (cursor % 3) * CELL + 3, BOARD_Y + Math.floor(cursor / 3) * CELL + 3, CELL - 6, CELL - 6);
       }
-      const color = message === 'YOU WIN' ? COLORS.cyan : message === 'CPU WINS' ? COLORS.red : COLORS.text;
+      const color = message === 'YOU WIN' ? COLORS.cyan : message === 'NPC WINS' ? COLORS.red : COLORS.text;
       drawText(g, message, WIDTH / 2, HEIGHT - 20, { color, align: 'center' });
     },
 
