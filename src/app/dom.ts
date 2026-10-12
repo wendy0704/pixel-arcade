@@ -42,6 +42,18 @@ export function svgIcon(markup: string): HTMLElement {
 const svg = (body: string) =>
   `<svg viewBox="0 0 8 8" width="16" height="16" shape-rendering="crispEdges" fill="currentColor">${body}</svg>`;
 
+const STAR_ROWS = ['....X....', '....X....', '...XXX...', 'XXXXXXXXX', '.XXXXXXX.', '..XXXXX..', '..XXXXX..', '.XXX.XXX.', '.XX...XX.'];
+
+function pixelSvg(rows: string[], cell: number): string {
+  const rects: string[] = [];
+  rows.forEach((row, y) => {
+    for (const m of row.matchAll(/X+/g)) rects.push(`<rect x="${m.index}" y="${y}" width="${m[0].length}" height="1"/>`);
+  });
+  const w = rows[0].length;
+  const h = rows.length;
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w * cell}" height="${h * cell}" shape-rendering="crispEdges" fill="currentColor">${rects.join('')}</svg>`;
+}
+
 export const ICONS = {
   back: svg('<rect x="1" y="3" width="6" height="2"/><rect x="2" y="2" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="1" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/>'),
   pause: svg('<rect x="1" y="1" width="2" height="6"/><rect x="5" y="1" width="2" height="6"/>'),
@@ -51,5 +63,5 @@ export const ICONS = {
   fullscreen: svg('<rect x="0" y="0" width="3" height="1"/><rect x="0" y="0" width="1" height="3"/><rect x="5" y="0" width="3" height="1"/><rect x="7" y="0" width="1" height="3"/><rect x="0" y="7" width="3" height="1"/><rect x="0" y="5" width="1" height="3"/><rect x="5" y="7" width="3" height="1"/><rect x="7" y="5" width="1" height="3"/>'),
   shrink: svg('<rect x="0" y="2" width="3" height="1"/><rect x="2" y="0" width="1" height="3"/><rect x="5" y="2" width="3" height="1"/><rect x="5" y="0" width="1" height="3"/><rect x="0" y="5" width="3" height="1"/><rect x="2" y="5" width="1" height="3"/><rect x="5" y="5" width="3" height="1"/><rect x="5" y="5" width="1" height="3"/>'),
   gear: svg('<rect x="3" y="0" width="2" height="1"/><rect x="3" y="7" width="2" height="1"/><rect x="0" y="3" width="1" height="2"/><rect x="7" y="3" width="1" height="2"/><rect x="1" y="1" width="6" height="6"/><rect x="3" y="3" width="2" height="2" fill="#0b0b1a"/>'),
-  star: svg('<rect x="3" y="0" width="2" height="2"/><rect x="0" y="2" width="8" height="2"/><rect x="1" y="4" width="6" height="1"/><rect x="1" y="5" width="2" height="2"/><rect x="5" y="5" width="2" height="2"/><rect x="0" y="7" width="2" height="1"/><rect x="6" y="7" width="2" height="1"/>'),
+  star: pixelSvg(STAR_ROWS, 2),
 };
