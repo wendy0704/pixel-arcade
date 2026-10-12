@@ -85,3 +85,13 @@ export function mixColor(from: string, to: string, t: number): string {
   const ch = (shift: number) => Math.round(((a >> shift) & 0xff) + ((((b >> shift) & 0xff) - ((a >> shift) & 0xff)) * k));
   return `#${((ch(16) << 16) | (ch(8) << 8) | ch(0)).toString(16).padStart(6, '0')}`;
 }
+
+export function drawDisc(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number, color: string): void {
+  const x0 = Math.round(cx);
+  const y0 = Math.round(cy);
+  ctx.fillStyle = color;
+  for (let dy = -radius; dy < radius; dy++) {
+    const half = Math.round(Math.sqrt(radius * radius - (dy + 0.5) * (dy + 0.5)));
+    if (half > 0) ctx.fillRect(x0 - half, y0 + dy, half * 2, 1);
+  }
+}
