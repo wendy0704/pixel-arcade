@@ -3,11 +3,11 @@ import { isValidBg, isValidPixels, NAME_MAX, normalizeName } from './avatar';
 
 export type PadSize = 'small' | 'medium' | 'large';
 export type ScaleMode = 'integer' | 'fill';
-export type ThemeId = 'neon' | 'handheld' | 'pocket' | 'famicom' | 'console16' | 'redscope';
+export type ThemeId = 'neon' | 'handheld' | 'pocket' | 'famicom' | 'console16' | 'redscope' | 'cga' | 'micro8' | 'master64' | 'colorboy';
 
 export const PAD_SIZES: PadSize[] = ['small', 'medium', 'large'];
 export const SCALE_MODES: ScaleMode[] = ['integer', 'fill'];
-export const THEMES: ThemeId[] = ['neon', 'handheld', 'pocket', 'famicom', 'console16', 'redscope'];
+export const THEMES: ThemeId[] = ['neon', 'famicom', 'console16', 'cga', 'micro8', 'master64', 'colorboy', 'handheld', 'pocket', 'redscope'];
 
 export interface Settings {
   version: 1;

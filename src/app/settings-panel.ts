@@ -13,6 +13,10 @@ export const THEME_INFO: Record<ThemeId, { name: string; swatch: string[] }> = {
   famicom: { name: '紅白主機', swatch: ['#1c0c0e', '#d82b2b', '#e8dcc0', '#d4a83c'] },
   console16: { name: '灰紫主機', swatch: ['#24222c', '#7b6fc2', '#b6acd9', '#e6c84c'] },
   redscope: { name: '紅黑立體機', swatch: ['#000000', '#550000', '#aa0000', '#ff1a1a'] },
+  cga: { name: '四色電腦', swatch: ['#000000', '#55ffff', '#ff55ff', '#ffffff'] },
+  micro8: { name: '八色電腦', swatch: ['#0000d7', '#d70000', '#00d700', '#d7d700'] },
+  master64: { name: '64 色主機', swatch: ['#00002a', '#ff5500', '#55aaff', '#ffff55'] },
+  colorboy: { name: '彩色掌機', swatch: ['#1b2033', '#ff6f91', '#5ee0c8', '#ffd166'] },
 };
 
 export function buildSettingsSection(services: Services, onRecordsCleared: () => void): HTMLElement {

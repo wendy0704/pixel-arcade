@@ -206,3 +206,71 @@ body.pad-left .vpad-ab {
     margin-right: auto;
   }
 }
+
+:root[data-theme='cga'] {
+  --bg: #000000;
+  --panel: #141414;
+  --panel-light: #555555;
+  --pink: #ff55ff;
+  --cyan: #55ffff;
+  --gold: #ffffff;
+  --text: #ffffff;
+  --muted: #aaaaaa;
+  --red: #ff55ff;
+}
+
+:root[data-theme='micro8'] {
+  --bg: #000000;
+  --panel: #00006b;
+  --panel-light: #0000d7;
+  --pink: #d700d7;
+  --cyan: #00d7d7;
+  --gold: #d7d700;
+  --text: #ffffff;
+  --muted: #a8a8d8;
+  --red: #d70000;
+}
+
+:root[data-theme='master64'] {
+  --bg: #00002a;
+  --panel: #000055;
+  --panel-light: #0055aa;
+  --pink: #ff5500;
+  --cyan: #55aaff;
+  --gold: #ffff55;
+  --text: #ffffff;
+  --muted: #aaaaff;
+  --red: #ff0000;
+}
+
+:root[data-theme='colorboy'] {
+  --bg: #1b2033;
+  --panel: #2a3352;
+  --panel-light: #3d4a70;
+  --pink: #ff6f91;
+  --cyan: #5ee0c8;
+  --gold: #ffd166;
+  --text: #f4f1de;
+  --muted: #9aa5c4;
+  --red: #ef476f;
+}
+
+:root[data-theme='cga'] .game-canvas,
+:root[data-theme='cga'] .card-canvas {
+  filter: url(#pal-cga);
+}
+
+:root[data-theme='micro8'] .game-canvas,
+:root[data-theme='micro8'] .card-canvas {
+  filter: url(#pal-micro8);
+}
+
+:root[data-theme='master64'] .game-canvas,
+:root[data-theme='master64'] .card-canvas {
+  filter: url(#pal-master64);
+}
+
+:root[data-theme='colorboy'] .game-canvas,
+:root[data-theme='colorboy'] .card-canvas {
+  filter: url(#pal-colorboy);
+}

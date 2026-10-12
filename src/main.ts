@@ -27,6 +27,35 @@ const THEME_COLOR: Record<string, string> = {
   famicom: '#1c0c0e',
   console16: '#24222c',
   redscope: '#000000',
+  cga: '#000000',
+  micro8: '#000000',
+  master64: '#00002a',
+  colorboy: '#1b2033',
+};
+
+const COLOR_FILTERS: Record<string, string> = {
+  cga: `<feColorMatrix type="matrix" values="1 0 0 0 0 -0.5 1 0.9 0 0 0 0 0 0 0 0 0 0 1 0"/>
+  <feComponentTransfer>
+    <feFuncR type="discrete" tableValues="0 1"/>
+    <feFuncG type="discrete" tableValues="0 1"/>
+  </feComponentTransfer>
+  <feColorMatrix type="matrix" values="1 0.333 0 0 0 0.333 1 0 0 0 1 1 0 0 0 0 0 0 1 0"/>`,
+  micro8: `<feComponentTransfer>
+    <feFuncR type="discrete" tableValues="0 0.843"/>
+    <feFuncG type="discrete" tableValues="0 0.843"/>
+    <feFuncB type="discrete" tableValues="0 0.843"/>
+  </feComponentTransfer>`,
+  master64: `<feComponentTransfer>
+    <feFuncR type="discrete" tableValues="0 0.333 0.667 1"/>
+    <feFuncG type="discrete" tableValues="0 0.333 0.667 1"/>
+    <feFuncB type="discrete" tableValues="0 0.333 0.667 1"/>
+  </feComponentTransfer>`,
+  colorboy: `<feColorMatrix type="saturate" values="1.5"/>
+  <feComponentTransfer>
+    <feFuncR type="discrete" tableValues="0.106 0.36 0.64 0.88 1"/>
+    <feFuncG type="discrete" tableValues="0.125 0.4 0.68 0.9 0.97"/>
+    <feFuncB type="discrete" tableValues="0.2 0.44 0.62 0.78 0.84"/>
+  </feComponentTransfer>`,
 };
 
 function installPaletteFilters(): void {
@@ -48,6 +77,7 @@ function installPaletteFilters(): void {
   </feComponentTransfer>
 </filter>`,
     )
+    .concat(Object.entries(COLOR_FILTERS).map(([id, body]) => `<filter id="pal-${id}" color-interpolation-filters="sRGB">${body}</filter>`))
     .join('');
   const holder = document.createElement('div');
   holder.setAttribute('aria-hidden', 'true');
