@@ -42,7 +42,7 @@ export function openModal(panel: HTMLElement, options: ModalOptions = {}): Modal
     if (e.target === backdrop && dismissible) close();
   });
   openCount++;
-  document.body.append(backdrop);
+  (document.fullscreenElement ?? document.body).append(backdrop);
   window.addEventListener('keydown', onKey);
   if (!panel.hasAttribute('tabindex')) panel.setAttribute('tabindex', '-1');
   const target = panel.querySelector<HTMLElement>('[data-autofocus]') ?? panel;
