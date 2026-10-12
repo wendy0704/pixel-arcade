@@ -47,6 +47,7 @@ export class GameHost {
   private diffEl!: HTMLElement;
   private pauseBtn!: HTMLButtonElement;
   private muteBtn!: HTMLButtonElement;
+  private fsBtn!: HTMLButtonElement;
   private rotateHint!: HTMLElement;
   private pad: VirtualPad | null = null;
   private resizeObserver: ResizeObserver | null = null;
@@ -149,8 +150,9 @@ export class GameHost {
     this.renderMute();
     const settingsBtn = h('button', { type: 'button', class: 'icon-btn', 'aria-label': '遊戲設定' }, svgIcon(ICONS.gear));
     settingsBtn.addEventListener('click', () => this.openSettings());
-    const fsBtn = h('button', { type: 'button', class: 'icon-btn', 'aria-label': '全螢幕（F）' }, svgIcon(ICONS.fullscreen));
-    fsBtn.addEventListener('click', () => this.toggleFullscreen());
+    this.fsBtn = h('button', { type: 'button', class: 'icon-btn fs-btn' });
+    this.fsBtn.addEventListener('click', () => this.toggleFullscreen());
+    this.renderFullscreen(false);
     const backBtn = h('button', { type: 'button', class: 'icon-btn back-btn', 'aria-label': '返回大廳' }, svgIcon(ICONS.back), h('span', { class: 'icon-btn-text' }, '大廳'));
     backBtn.addEventListener('click', () => goToLobby());
 
@@ -169,7 +171,7 @@ export class GameHost {
           h('div', { class: 'score-item' }, h('span', { class: 'label pixel' }, 'SCORE'), this.scoreEl),
           h('div', { class: 'score-item best-item' }, h('span', { class: 'label pixel' }, 'BEST'), this.bestEl),
         ),
-        h('div', { class: 'bar-right' }, this.barAvatar(), this.pauseBtn, this.muteBtn, settingsBtn, fsBtn),
+        h('div', { class: 'bar-right' }, this.barAvatar(), this.pauseBtn, this.muteBtn, settingsBtn, this.fsBtn),
       ),
       this.stage,
       this.pad?.el,
@@ -423,7 +425,8 @@ export class GameHost {
   private fit(): void {
     if (!this.root) return;
     const rect = this.stage.getBoundingClientRect();
-    const scale = computeScale(rect.width - 16, rect.height - 16, this.canvas.width, this.canvas.height);
+    const margin = this.root.classList.contains('is-fs') ? 4 : 16;
+    const scale = computeScale(rect.width - margin, rect.height - margin, this.canvas.width, this.canvas.height);
     this.canvas.style.width = `${Math.floor(this.canvas.width * scale)}px`;
     this.canvas.style.height = `${Math.floor(this.canvas.height * scale)}px`;
     const portraitTouch = window.matchMedia('(pointer: coarse) and (orientation: portrait)').matches;
@@ -449,18 +452,39 @@ export class GameHost {
       return;
     }
     if (this.root.classList.contains('pseudo-fs')) {
-      this.root.classList.remove('pseudo-fs');
+      this.setPseudoFullscreen(false);
       return;
     }
     const root = this.root;
     if (document.fullscreenEnabled && root.requestFullscreen) {
-      root.requestFullscreen().catch(() => root.classList.add('pseudo-fs'));
+      root.requestFullscreen().catch(() => this.setPseudoFullscreen(true));
     } else {
-      root.classList.add('pseudo-fs');
+      this.setPseudoFullscreen(true);
     }
   }
 
-  private onFullscreenChange = (): void => this.fit();
+  private setPseudoFullscreen(on: boolean): void {
+    if (!this.root) return;
+    this.root.classList.toggle('pseudo-fs', on);
+    this.root.classList.toggle('is-fs', on);
+    this.renderFullscreen(on);
+    window.scrollTo(0, 0);
+    this.fit();
+  }
+
+  private renderFullscreen(on: boolean): void {
+    this.fsBtn.replaceChildren(svgIcon(on ? ICONS.shrink : ICONS.fullscreen));
+    this.fsBtn.setAttribute('aria-label', on ? '離開全螢幕（F）' : '全螢幕（F）');
+    this.fsBtn.setAttribute('aria-pressed', String(on));
+  }
+
+  private onFullscreenChange = (): void => {
+    if (!this.root) return;
+    const on = document.fullscreenElement === this.root;
+    this.root.classList.toggle('is-fs', on);
+    this.renderFullscreen(on);
+    this.fit();
+  };
 
   private onVisibility = (): void => {
     if (document.hidden) this.pause();

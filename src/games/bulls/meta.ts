@@ -11,12 +11,13 @@ export const meta: GameMeta = {
   scoreLabel: '猜測次數',
   formatScore: (s) => `${s} 次`,
   controls: [
-    { keys: '數字鍵 0～9', action: '輸入數字' },
+    { keys: '數字鍵 0～9', action: '在選取的格子輸入數字' },
+    { keys: '← → / 點擊格子', action: '選擇要輸入哪一格' },
     { keys: 'Backspace / X', action: '刪除' },
     { keys: 'Enter / 空白鍵', action: '送出猜測' },
     { keys: '滑鼠', action: '點擊畫面上的數字鍵盤' },
   ],
-  touchHint: '點擊畫面上的數字鍵盤',
+  touchHint: '先點上方的格子選位置，再點數字鍵盤',
   padLayout: 'none',
   size: () => ({ width: 240, height: 360 }),
   drawThumbnail(ctx, w, h) {

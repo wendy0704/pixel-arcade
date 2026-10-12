@@ -22,6 +22,15 @@ const ERROR_TEXT: Record<GuessError, string> = {
   duplicate: 'ALREADY GUESSED',
 };
 
+const SLOT_W = 26;
+const SLOT_GAP = 8;
+const SLOT_H = 30;
+
+function slotRect(i: number, length: number) {
+  const total = length * SLOT_W + (length - 1) * SLOT_GAP;
+  return { x: Math.round((WIDTH - total) / 2 + i * (SLOT_W + SLOT_GAP)), y: SLOT_Y, w: SLOT_W, h: SLOT_H };
+}
+
 function keyRect(i: number) {
   return {
     x: 2 + (i % 3) * (KEY_W + KEY_GAP),
@@ -35,7 +44,8 @@ export function createGame(): Game {
   let ctx!: GameContext;
   let length = 4;
   let secret = '';
-  let input = '';
+  let slots: string[] = [];
+  let active = 0;
   let history: GuessRecord[] = [];
   let message = '';
   let messageTimer = 0;
@@ -51,20 +61,40 @@ export function createGame(): Game {
     pressTimer = 0.12;
   };
 
+  const usedElsewhere = (digit: string) => slots.some((d, i) => i !== active && d === digit);
+
+  const nextEmpty = (from: number) => {
+    for (let k = 1; k <= length; k++) {
+      const i = (from + k) % length;
+      if (!slots[i]) return i;
+    }
+    return from;
+  };
+
   const type = (digit: string) => {
-    if (won || input.length >= length || input.includes(digit)) return;
-    input += digit;
+    if (won || usedElsewhere(digit)) return;
+    slots[active] = digit;
+    active = nextEmpty(active);
     ctx.audio.play('move');
   };
 
   const erase = () => {
-    if (won || !input) return;
-    input = input.slice(0, -1);
+    if (won) return;
+    if (!slots[active] && active > 0) active--;
+    if (!slots[active]) return;
+    slots[active] = '';
     ctx.audio.play('flag');
+  };
+
+  const select = (i: number) => {
+    if (won || i < 0 || i >= length) return;
+    active = i;
+    ctx.audio.play('reveal');
   };
 
   const submit = () => {
     if (won) return;
+    const input = slots.join('');
     const error = validateGuess(input, length, history);
     if (error) {
       message = ERROR_TEXT[error];
@@ -74,7 +104,8 @@ export function createGame(): Game {
     }
     const result = judge(secret, input);
     history.push({ guess: input, ...result });
-    input = '';
+    slots = Array<string>(length).fill('');
+    active = 0;
     ctx.setScore(history.length);
     if (result.a === length) {
       won = true;
@@ -100,7 +131,8 @@ export function createGame(): Game {
       ctx = context;
       length = CONFIG[ctx.difficulty].length;
       secret = generateSecret(length, ctx.random);
-      input = '';
+      slots = Array<string>(length).fill('');
+      active = 0;
       history = [];
       message = '';
       messageTimer = 0;
@@ -123,6 +155,8 @@ export function createGame(): Game {
         }
         return;
       }
+      if (ctx.input.wasPressed('left')) select((active + length - 1) % length);
+      if (ctx.input.wasPressed('right')) select((active + 1) % length);
       if (ctx.input.wasPressed('primary')) press('OK');
       if (ctx.input.wasPressed('secondary')) press('DEL');
     },
@@ -145,6 +179,13 @@ export function createGame(): Game {
 
     onPointer(e: PointerInfo) {
       if (e.type !== 'down') return;
+      for (let k = 0; k < length; k++) {
+        const r = slotRect(k, length);
+        if (e.x >= r.x - SLOT_GAP / 2 && e.x < r.x + r.w + SLOT_GAP / 2 && e.y >= r.y - 6 && e.y < r.y + r.h + 6) {
+          select(k);
+          return;
+        }
+      }
       const i = KEYS.findIndex((_, k) => {
         const r = keyRect(k);
         return e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h;
@@ -175,19 +216,19 @@ export function createGame(): Game {
         drawText(g, 'B = RIGHT DIGIT ONLY', WIDTH / 2, LIST_TOP + 100, { color: COLORS.gold, align: 'center' });
       }
 
-      const slotW = 26;
-      const slotGap = 8;
-      const total = length * slotW + (length - 1) * slotGap;
-      const sx = (WIDTH - total) / 2;
       for (let i = 0; i < length; i++) {
-        const x = Math.round(sx + i * (slotW + slotGap));
-        const active = i === input.length && !won && Math.floor(time * 2) % 2 === 0;
-        g.fillStyle = active ? COLORS.pink : COLORS.panelLight;
-        g.fillRect(x, SLOT_Y, slotW, 30);
-        g.fillStyle = COLORS.bg;
-        g.fillRect(x + 2, SLOT_Y + 2, slotW - 4, 26);
-        const ch = won ? secret[i] : input[i];
-        if (ch) drawText(g, ch, x + slotW / 2, SLOT_Y + 8, { size: 16, color: won ? COLORS.cyan : COLORS.text, align: 'center' });
+        const r = slotRect(i, length);
+        const isActive = i === active && !won;
+        g.fillStyle = isActive ? COLORS.pink : COLORS.panelLight;
+        g.fillRect(r.x, r.y, r.w, r.h);
+        g.fillStyle = isActive ? '#2a1028' : COLORS.bg;
+        g.fillRect(r.x + 2, r.y + 2, r.w - 4, r.h - 4);
+        const ch = won ? secret[i] : slots[i];
+        if (ch) drawText(g, ch, r.x + r.w / 2, r.y + 8, { size: 16, color: won ? COLORS.cyan : COLORS.text, align: 'center' });
+        else if (isActive && Math.floor(time * 2) % 2 === 0) {
+          g.fillStyle = COLORS.pink;
+          g.fillRect(r.x + 7, r.y + r.h - 7, r.w - 14, 2);
+        }
       }
 
       if (messageTimer > 0) {
@@ -198,7 +239,7 @@ export function createGame(): Game {
 
       KEYS.forEach((key, i) => {
         const r = keyRect(i);
-        const used = key.length === 1 && input.includes(key);
+        const used = key.length === 1 && usedElsewhere(key);
         const isPressed = pressed === i && pressTimer > 0;
         const color = key === 'OK' ? COLORS.pink : key === 'DEL' ? '#4a4a80' : COLORS.panelLight;
         drawBevel(g, r.x, r.y, r.w, r.h, isPressed ? COLORS.cyan : used ? COLORS.panel : color, 2);

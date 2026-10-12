@@ -17,6 +17,37 @@
   background: rgba(11, 11, 26, 0.85);
 }
 
+.game-page.is-fs .game-bar {
+  grid-template-columns: 1fr auto;
+  grid-template-areas: 'score right';
+  padding-top: calc(4px + env(safe-area-inset-top));
+  padding-bottom: 4px;
+  border-bottom-width: 1px;
+}
+
+.game-page.is-fs .bar-left,
+.game-page.is-fs .bar-avatar {
+  display: none;
+}
+
+.game-page.is-fs .scoreboard {
+  grid-area: score;
+  justify-content: flex-start;
+}
+
+.game-page.is-fs .bar-right {
+  grid-area: right;
+}
+
+.game-page.is-fs .game-canvas {
+  box-shadow: none;
+}
+
+.game-page.is-fs .fs-btn {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
 .game-bar {
   display: grid;
   grid-template-columns: 1fr auto 1fr;

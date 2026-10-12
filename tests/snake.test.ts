@@ -93,11 +93,16 @@ describe('snake logic', () => {
     expect(s.food).not.toEqual({ x: 11, y: 10 });
   });
 
-  it('speeds up every five foods up to the cap', () => {
-    expect(speedFor('easy', 0)).toBe(4);
-    expect(speedFor('easy', 5)).toBe(5);
-    expect(speedFor('normal', 4)).toBe(5);
-    expect(speedFor('easy', 500)).toBe(9);
-    expect(speedFor('hard', 500)).toBe(14);
+  it('speeds up at a different pace per difficulty up to the cap', () => {
+    expect(speedFor('easy', 0)).toBe(3);
+    expect(speedFor('easy', 7)).toBe(3);
+    expect(speedFor('easy', 8)).toBe(4);
+    expect(speedFor('normal', 0)).toBe(5);
+    expect(speedFor('normal', 5)).toBe(6);
+    expect(speedFor('hard', 0)).toBe(8);
+    expect(speedFor('hard', 3)).toBe(9);
+    expect(speedFor('easy', 500)).toBe(6);
+    expect(speedFor('normal', 500)).toBe(10);
+    expect(speedFor('hard', 500)).toBe(16);
   });
 });

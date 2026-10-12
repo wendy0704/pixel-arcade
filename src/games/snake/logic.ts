@@ -28,10 +28,10 @@ export const MAX_QUEUE = 2;
 export const POINTS_PER_FOOD = 10;
 export const DIRS: Dir[] = ['up', 'down', 'left', 'right'];
 
-export const SPEED: Record<Difficulty, { start: number; max: number }> = {
-  easy: { start: 4, max: 9 },
-  normal: { start: 5, max: 11 },
-  hard: { start: 7, max: 14 },
+export const SPEED: Record<Difficulty, { start: number; max: number; every: number }> = {
+  easy: { start: 3, max: 6, every: 8 },
+  normal: { start: 5, max: 10, every: 5 },
+  hard: { start: 8, max: 16, every: 3 },
 };
 
 const VEC: Record<Dir, Point> = {
@@ -119,6 +119,6 @@ export function step(state: SnakeState, random: () => number): StepEvent {
 }
 
 export function speedFor(difficulty: Difficulty, eaten: number): number {
-  const { start, max } = SPEED[difficulty];
-  return Math.min(max, start + Math.floor(eaten / 5));
+  const { start, max, every } = SPEED[difficulty];
+  return Math.min(max, start + Math.floor(eaten / every));
 }
