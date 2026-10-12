@@ -461,21 +461,22 @@
 @media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
   .game-page {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: 1fr;
     grid-template-rows: auto minmax(0, 1fr);
-    grid-template-areas:
-      'bar bar bar'
-      'left stage right';
   }
 
   .game-bar {
-    grid-area: bar;
     padding-top: calc(4px + env(safe-area-inset-top));
     padding-bottom: 4px;
   }
 
   .game-title {
     font-size: 14px;
+  }
+
+  .game-bar .icon-btn {
+    min-width: 32px;
+    height: 30px;
   }
 
   .score-item {
@@ -489,49 +490,72 @@
     font-size: 12px;
   }
 
-  .stage {
-    grid-area: stage;
-  }
-
   .vpad {
-    display: contents;
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 4;
+    padding: 0 calc(6px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(6px + env(safe-area-inset-left));
+    border: none;
+    background: transparent;
+    align-items: flex-end;
+    pointer-events: none;
   }
 
-  .vpad-dpad,
-  .vpad-lr {
-    grid-area: left;
-    align-self: center;
-    margin: 0 8px 0 calc(12px + env(safe-area-inset-left));
+  .vpad > * {
+    pointer-events: auto;
   }
 
   .vpad-dpad {
-    grid-template-columns: repeat(3, 50px);
-    grid-template-rows: repeat(3, 50px);
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(3, 44px);
   }
 
   .vpad-lr {
-    flex-direction: column;
+    gap: 6px;
   }
 
-  .vpad-ab,
-  .vbtn-toggle {
-    grid-area: right;
-    align-self: center;
-    margin: 0 calc(12px + env(safe-area-inset-right)) 0 8px;
+  .vpad-lr .vbtn-dir {
+    width: 56px;
+    height: 52px;
+  }
+
+  .vbtn {
+    min-width: 44px;
+    min-height: 44px;
+    background: rgba(11, 11, 26, 0.6);
   }
 
   .vpad-ab {
-    flex-direction: column-reverse;
-    align-items: center;
+    gap: 10px;
+    margin-left: auto;
   }
 
-  .vpad-ab .vbtn-wrap:first-child:not(:last-child) {
-    margin: 0 0 0 40px;
+  .vbtn-round {
+    width: 56px;
+    height: 56px;
+  }
+
+  .vpad-single .vbtn-round {
+    width: 72px;
+    height: 72px;
+  }
+
+  .vbtn-caption {
+    display: none;
+  }
+
+  .vbtn-wrap:first-child:not(:last-child) {
+    margin-bottom: 24px;
+  }
+
+  .vpad-toggle,
+  .vpad-single {
+    justify-content: flex-end;
   }
 
   .vbtn-toggle {
-    width: 112px;
-    min-height: 96px;
+    width: 120px;
+    min-height: 64px;
     line-height: 1.6;
   }
 }

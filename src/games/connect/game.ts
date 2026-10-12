@@ -16,6 +16,35 @@ type Phase = 'player' | 'cpu' | 'falling' | 'result';
 
 const COLOR = { [PLAYER]: COLORS.pink, [CPU]: COLORS.gold } as Record<number, string>;
 
+let frontCache: HTMLCanvasElement | null = null;
+
+function boardFront(): HTMLCanvasElement {
+  if (frontCache) return frontCache;
+  const canvas = document.createElement('canvas');
+  canvas.width = COLS * CELL + 8;
+  canvas.height = ROWS * CELL + 8;
+  const g = canvas.getContext('2d')!;
+  g.fillStyle = '#1f2f8a';
+  g.fillRect(0, 0, canvas.width, canvas.height);
+  g.fillStyle = '#3550c8';
+  g.fillRect(0, 0, canvas.width, 2);
+  g.globalCompositeOperation = 'destination-out';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) drawDisc(g, 4 + c * CELL + CELL / 2, 4 + r * CELL + CELL / 2, 13, '#000000');
+  }
+  g.globalCompositeOperation = 'source-over';
+  g.fillStyle = '#16226a';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const x = 4 + c * CELL + CELL / 2;
+      const y = 4 + r * CELL + CELL / 2;
+      g.fillRect(x - 6, y + 13, 12, 1);
+    }
+  }
+  frontCache = canvas;
+  return canvas;
+}
+
 export function createGame(): Game {
   let ctx!: GameContext;
   let board: Board = createBoard();
@@ -179,24 +208,21 @@ export function createGame(): Game {
         g.fillRect(cellX(cursor) - 1, HOVER_Y + 15, 2, 3);
       }
 
-      g.fillStyle = '#1f2f8a';
-      g.fillRect(BOARD_X - 4, BOARD_Y - 4, COLS * CELL + 8, ROWS * CELL + 8);
-      g.fillStyle = '#3550c8';
-      g.fillRect(BOARD_X - 4, BOARD_Y - 4, COLS * CELL + 8, 2);
       const flash = Math.floor(time * 6) % 2 === 0;
+      g.fillStyle = '#101038';
+      g.fillRect(BOARD_X, BOARD_Y, COLS * CELL, ROWS * CELL);
+      const piece = (x: number, y: number, who: number, lit: boolean) => {
+        drawDisc(g, x, y, 12, lit ? '#ffffff' : COLOR[who]);
+        drawDisc(g, x - 3, y - 3, 3, lit ? '#ffffff' : who === PLAYER ? '#ff8ac0' : '#ffe98a');
+      };
       for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
           const who = board[index(r, c)];
-          const lit = winCells.includes(index(r, c)) && flash;
-          drawDisc(g, cellX(c), cellY(r), 13, '#101038');
-          if (who) drawDisc(g, cellX(c), cellY(r), 12, lit ? '#ffffff' : COLOR[who]);
-          if (who) drawDisc(g, cellX(c) - 3, cellY(r) - 3, 3, lit ? '#ffffff' : who === PLAYER ? '#ff8ac0' : '#ffe98a');
+          if (who) piece(cellX(c), cellY(r), who, winCells.includes(index(r, c)) && flash);
         }
       }
-      if (falling) {
-        drawDisc(g, cellX(falling.col), falling.y, 12, COLOR[falling.who]);
-        drawDisc(g, cellX(falling.col) - 3, falling.y - 3, 3, falling.who === PLAYER ? '#ff8ac0' : '#ffe98a');
-      }
+      if (falling) piece(cellX(falling.col), falling.y, falling.who, false);
+      g.drawImage(boardFront(), BOARD_X - 4, BOARD_Y - 4);
       const color = message === 'YOU WIN' ? COLORS.cyan : message === 'NPC WINS' ? COLORS.red : COLORS.text;
       drawText(g, message, WIDTH / 2, HEIGHT - 18, { color, align: 'center' });
     },

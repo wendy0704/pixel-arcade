@@ -137,7 +137,7 @@ export class GameHost {
     this.ctx = getContext(this.canvas);
     const layer = h('div', { class: 'overlay-layer' });
     this.overlay = new OverlayLayer(layer, this.services.audio);
-    this.rotateHint = h('p', { class: 'rotate-hint', hidden: true }, '建議將手機轉為橫向，盤面會比較大');
+    this.rotateHint = h('p', { class: 'rotate-hint', hidden: true }, '建議將手機轉為橫向，畫面會比較大');
     this.stage = h('main', { class: 'stage' }, this.canvas, layer, this.rotateHint);
 
     this.scoreEl = h('span', { class: 'value pixel' }, '0');
@@ -425,7 +425,8 @@ export class GameHost {
   private fit(): void {
     if (!this.root) return;
     const rect = this.stage.getBoundingClientRect();
-    const margin = this.root.classList.contains('is-fs') ? 4 : 16;
+    const compact = this.root.classList.contains('is-fs') || window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 500px)').matches;
+    const margin = compact ? 4 : 16;
     const scale = computeScale(rect.width - margin, rect.height - margin, this.canvas.width, this.canvas.height);
     this.canvas.style.width = `${Math.floor(this.canvas.width * scale)}px`;
     this.canvas.style.height = `${Math.floor(this.canvas.height * scale)}px`;
