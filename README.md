@@ -2,7 +2,7 @@
 
 在瀏覽器裡遊玩的復古小遊戲合集。所有遊戲皆以 TypeScript 與 Canvas 2D 從零實作，畫面與音效全部由程式即時產生，不使用任何原作素材。
 
-線上版本：`https://wendy0704.github.io/pixel-arcade/`
+線上版本：[https://wendy0704.github.io/pixel-arcade/](https://wendy0704.github.io/pixel-arcade/)
 
 ## 收錄遊戲
 
@@ -38,7 +38,7 @@ iPhone 的 Safari 不允許網頁進入真正的全螢幕；用 Safari 的「分
 - 每款遊戲三種難度，最高分依「遊戲 × 難度」分開記錄（存在瀏覽器 localStorage）
 - 8-bit 合成音效、CRT 掃描線效果（可在設定中關閉）
 - 遊戲設定：畫面縮放（整數倍／填滿）、開局 3・2・1 倒數、手機左手模式、虛擬按鍵大小、10 種經典遊戲機風格的主題配色（含單色與多色）
-- 每款遊戲有獨立網址，例如 `#/game/snake`，可以直接分享
+- 每款遊戲有獨立網址，例如 [`#/game/snake`](https://wendy0704.github.io/pixel-arcade/#/game/snake)，可以直接分享
 
 ## 開發
 
