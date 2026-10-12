@@ -51,6 +51,20 @@ describe('GameStorage', () => {
     expect(storage.getSettings()).toEqual(DEFAULT_SETTINGS);
   });
 
+  it('fills in new settings for data saved by older versions', () => {
+    const { backend, storage } = make();
+    backend.setItem(KEYS.settings, JSON.stringify({ version: 1, muted: true, volume: 0.3, crt: false }));
+    expect(storage.getSettings()).toEqual({ ...DEFAULT_SETTINGS, muted: true, volume: 0.3, crt: false });
+  });
+
+  it('ignores unknown values for the new settings', () => {
+    const { backend, storage } = make();
+    backend.setItem(KEYS.settings, JSON.stringify({ ...DEFAULT_SETTINGS, padSize: 'huge', theme: 'rainbow', scaleMode: 3, leftHanded: 'yes' }));
+    expect(storage.getSettings()).toEqual(DEFAULT_SETTINGS);
+    storage.updateSettings({ padSize: 'large', theme: 'handheld', scaleMode: 'integer', leftHanded: true, countdown: true });
+    expect(storage.getSettings()).toMatchObject({ padSize: 'large', theme: 'handheld', scaleMode: 'integer', leftHanded: true, countdown: true });
+  });
+
   it('updates settings and clamps volume', () => {
     const { storage } = make();
     storage.updateSettings({ muted: true, volume: 3 });

@@ -1,7 +1,8 @@
-export function computeScale(availW: number, availH: number, width: number, height: number): number {
+export function computeScale(availW: number, availH: number, width: number, height: number, mode: 'integer' | 'fill' = 'fill'): number {
   if (availW <= 0 || availH <= 0) return 1;
   const raw = Math.min(availW / width, availH / height);
-  return raw >= 2 ? Math.floor(raw) : Math.max(raw, 0.1);
+  if (mode === 'integer' && raw >= 1) return Math.floor(raw);
+  return Math.max(raw, 0.1);
 }
 
 export function toLogical(canvas: HTMLCanvasElement, clientX: number, clientY: number): { x: number; y: number } {

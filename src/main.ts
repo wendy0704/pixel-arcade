@@ -4,6 +4,7 @@ import './styles/base.css';
 import './styles/crt.css';
 import './styles/lobby.css';
 import './styles/game.css';
+import './styles/themes.css';
 
 import { GameHost } from './app/game-host';
 import { Lobby } from './app/lobby';
@@ -13,8 +14,57 @@ import { AudioEngine } from './core/audio';
 import { InputManager } from './core/input';
 import { createBackend, GameStorage, type Settings } from './core/storage';
 
-function applyCrt(on: boolean): void {
-  document.body.classList.toggle('crt', on);
+const PALETTE_FILTERS: Record<string, string[]> = {
+  handheld: ['#0f380f', '#306230', '#8bac0f', '#9bbc0f'],
+  pocket: ['#1e1e1e', '#5a5a5a', '#a5a5a5', '#e6e6e6'],
+  redscope: ['#000000', '#550000', '#aa0000', '#ff1a1a'],
+};
+
+const THEME_COLOR: Record<string, string> = {
+  neon: '#0b0b1a',
+  handheld: '#0f380f',
+  pocket: '#1a1a1a',
+  famicom: '#1c0c0e',
+  console16: '#24222c',
+  redscope: '#000000',
+};
+
+function installPaletteFilters(): void {
+  const channel = (hexes: string[], shift: number) =>
+    hexes.map((hex) => (((parseInt(hex.slice(1), 16) >> shift) & 0xff) / 255).toFixed(3)).join(' ');
+  const filters = Object.entries(PALETTE_FILTERS)
+    .map(
+      ([id, hexes]) => `<filter id="pal-${id}" color-interpolation-filters="sRGB">
+  <feColorMatrix type="matrix" values="0.299 0.587 0.114 0 0 0.299 0.587 0.114 0 0 0.299 0.587 0.114 0 0 0 0 0 1 0"/>
+  <feComponentTransfer>
+    <feFuncR type="gamma" amplitude="1" exponent="0.6" offset="0"/>
+    <feFuncG type="gamma" amplitude="1" exponent="0.6" offset="0"/>
+    <feFuncB type="gamma" amplitude="1" exponent="0.6" offset="0"/>
+  </feComponentTransfer>
+  <feComponentTransfer>
+    <feFuncR type="discrete" tableValues="${channel(hexes, 16)}"/>
+    <feFuncG type="discrete" tableValues="${channel(hexes, 8)}"/>
+    <feFuncB type="discrete" tableValues="${channel(hexes, 0)}"/>
+  </feComponentTransfer>
+</filter>`,
+    )
+    .join('');
+  const holder = document.createElement('div');
+  holder.setAttribute('aria-hidden', 'true');
+  holder.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+  holder.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0">${filters}</svg>`;
+  document.body.append(holder);
+}
+
+function applyAppearance(settings: Settings): void {
+  const body = document.body;
+  body.classList.toggle('crt', settings.crt);
+  body.classList.toggle('pad-left', settings.leftHanded);
+  body.classList.toggle('pad-small', settings.padSize === 'small');
+  body.classList.toggle('pad-large', settings.padSize === 'large');
+  document.documentElement.dataset.theme = settings.theme;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[settings.theme] ?? '#0b0b1a');
+  window.dispatchEvent(new CustomEvent('pa:settings'));
 }
 
 async function waitForFonts(): Promise<void> {
@@ -37,7 +87,8 @@ async function bootstrap(): Promise<void> {
   const input = new InputManager();
   const initial = storage.getSettings();
   audio.configure(initial.muted, initial.volume);
-  applyCrt(initial.crt);
+  installPaletteFilters();
+  applyAppearance(initial);
   input.attach();
 
   const unlock = () => audio.unlock();
@@ -51,7 +102,7 @@ async function bootstrap(): Promise<void> {
     applySettings(patch): Settings {
       const next = storage.updateSettings(patch);
       audio.configure(next.muted, next.volume);
-      applyCrt(next.crt);
+      applyAppearance(next);
       return next;
     },
   };

@@ -1,11 +1,24 @@
 import { DIFFICULTIES, type Difficulty, type ScoreOrder } from '../types/game';
 import { isValidBg, isValidPixels, NAME_MAX, normalizeName } from './avatar';
 
+export type PadSize = 'small' | 'medium' | 'large';
+export type ScaleMode = 'integer' | 'fill';
+export type ThemeId = 'neon' | 'handheld' | 'pocket' | 'famicom' | 'console16' | 'redscope';
+
+export const PAD_SIZES: PadSize[] = ['small', 'medium', 'large'];
+export const SCALE_MODES: ScaleMode[] = ['integer', 'fill'];
+export const THEMES: ThemeId[] = ['neon', 'handheld', 'pocket', 'famicom', 'console16', 'redscope'];
+
 export interface Settings {
   version: 1;
   muted: boolean;
   volume: number;
   crt: boolean;
+  leftHanded: boolean;
+  padSize: PadSize;
+  countdown: boolean;
+  scaleMode: ScaleMode;
+  theme: ThemeId;
 }
 
 export interface ScoreRecord {
@@ -40,7 +53,17 @@ export const KEYS = {
   profile: 'pa.profile',
 } as const;
 
-export const DEFAULT_SETTINGS: Settings = { version: 1, muted: false, volume: 0.6, crt: true };
+export const DEFAULT_SETTINGS: Settings = {
+  version: 1,
+  muted: false,
+  volume: 0.6,
+  crt: true,
+  leftHanded: false,
+  padSize: 'medium',
+  countdown: false,
+  scaleMode: 'fill',
+  theme: 'neon',
+};
 
 export class MemoryBackend implements KeyValueBackend {
   private map = new Map<string, string>();
@@ -80,7 +103,7 @@ export function isBetter(score: number, previous: number | undefined, order: Sco
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 
-const isSettings = (v: unknown): v is Settings =>
+const isSettings = (v: unknown): v is Pick<Settings, 'version' | 'muted' | 'volume' | 'crt'> & Record<string, unknown> =>
   isObject(v) &&
   v.version === 1 &&
   typeof v.muted === 'boolean' &&
@@ -88,6 +111,24 @@ const isSettings = (v: unknown): v is Settings =>
   typeof v.volume === 'number' &&
   v.volume >= 0 &&
   v.volume <= 1;
+
+const pick = <T extends string>(value: unknown, allowed: readonly T[], fallback: T): T =>
+  allowed.includes(value as T) ? (value as T) : fallback;
+
+export function normalizeSettings(raw: Record<string, unknown>): Settings {
+  const d = DEFAULT_SETTINGS;
+  return {
+    version: 1,
+    muted: typeof raw.muted === 'boolean' ? raw.muted : d.muted,
+    volume: typeof raw.volume === 'number' && raw.volume >= 0 && raw.volume <= 1 ? raw.volume : d.volume,
+    crt: typeof raw.crt === 'boolean' ? raw.crt : d.crt,
+    leftHanded: typeof raw.leftHanded === 'boolean' ? raw.leftHanded : d.leftHanded,
+    padSize: pick(raw.padSize, PAD_SIZES, d.padSize),
+    countdown: typeof raw.countdown === 'boolean' ? raw.countdown : d.countdown,
+    scaleMode: pick(raw.scaleMode, SCALE_MODES, d.scaleMode),
+    theme: pick(raw.theme, THEMES, d.theme),
+  };
+}
 
 const isStringArray = (v: unknown): v is string[] => Array.isArray(v) && v.every((x) => typeof x === 'string');
 
@@ -150,12 +191,13 @@ export class GameStorage {
   }
 
   getSettings(): Settings {
-    return { ...this.read(KEYS.settings, DEFAULT_SETTINGS, isSettings) };
+    return normalizeSettings(this.read<Record<string, unknown>>(KEYS.settings, { ...DEFAULT_SETTINGS }, isSettings));
   }
 
   updateSettings(patch: Partial<Omit<Settings, 'version'>>): Settings {
-    const next: Settings = { ...this.getSettings(), ...patch, version: 1 };
-    next.volume = Math.min(1, Math.max(0, next.volume));
+    const merged = { ...this.getSettings(), ...patch, version: 1 as const };
+    merged.volume = Math.min(1, Math.max(0, merged.volume));
+    const next = normalizeSettings(merged);
     this.write(KEYS.settings, next);
     return next;
   }

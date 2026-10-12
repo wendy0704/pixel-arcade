@@ -62,10 +62,13 @@ describe('game loop', () => {
     expect(advance(0, 5).steps).toBe(Math.floor(MAX_FRAME / STEP));
   });
 
-  it('scales canvases by integer factors when there is room', () => {
-    expect(computeScale(700, 700, 320, 320)).toBe(2);
-    expect(computeScale(300, 600, 480, 276)).toBeCloseTo(0.625);
-    expect(computeScale(374, 600, 288, 320)).toBeCloseTo(374 / 288);
+  it('fills the space or snaps to whole multiples depending on the mode', () => {
+    expect(computeScale(700, 700, 320, 320, 'fill')).toBeCloseTo(700 / 320);
+    expect(computeScale(700, 700, 320, 320, 'integer')).toBe(2);
+    expect(computeScale(374, 600, 288, 320, 'integer')).toBe(1);
+    expect(computeScale(374, 600, 288, 320, 'fill')).toBeCloseTo(374 / 288);
+    expect(computeScale(300, 600, 480, 276, 'integer')).toBeCloseTo(0.625);
+    expect(computeScale(300, 600, 480, 276, 'fill')).toBeCloseTo(0.625);
   });
 });
 

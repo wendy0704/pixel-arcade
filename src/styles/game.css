@@ -264,8 +264,8 @@
 
 .vpad-dpad {
   display: grid;
-  grid-template-columns: repeat(3, 56px);
-  grid-template-rows: repeat(3, 56px);
+  grid-template-columns: repeat(3, min(calc(56px * var(--pad, 1)), 17vw));
+  grid-template-rows: repeat(3, min(calc(56px * var(--pad, 1)), 17vw));
 }
 
 .d-up {
@@ -294,8 +294,8 @@
 }
 
 .vpad-lr .vbtn-dir {
-  width: 72px;
-  height: 64px;
+  width: min(calc(72px * var(--pad, 1)), 20vw);
+  height: calc(64px * var(--pad, 1));
 }
 
 .vpad-ab {
@@ -323,8 +323,8 @@
 .vbtn {
   display: grid;
   place-items: center;
-  min-width: 48px;
-  min-height: 48px;
+  min-width: calc(44px * var(--pad, 1));
+  min-height: calc(44px * var(--pad, 1));
   border: 2px solid var(--panel-light);
   background: var(--bg);
   color: var(--text);
@@ -340,8 +340,8 @@
 }
 
 .vbtn-round {
-  width: 64px;
-  height: 64px;
+  width: min(calc(64px * var(--pad, 1)), 21vw);
+  height: min(calc(64px * var(--pad, 1)), 21vw);
   border-radius: 50%;
   font-family: var(--font-pixel);
   font-size: 16px;
@@ -368,8 +368,8 @@
 }
 
 .vpad-single .vbtn-round {
-  width: 96px;
-  height: 96px;
+  width: min(calc(96px * var(--pad, 1)), 30vw);
+  height: min(calc(96px * var(--pad, 1)), 30vw);
   font-size: 24px;
 }
 
@@ -506,8 +506,8 @@
   }
 
   .vpad-dpad {
-    grid-template-columns: repeat(3, 44px);
-    grid-template-rows: repeat(3, 44px);
+    grid-template-columns: repeat(3, calc(44px * var(--pad, 1)));
+    grid-template-rows: repeat(3, calc(44px * var(--pad, 1)));
   }
 
   .vpad-lr {
@@ -515,13 +515,13 @@
   }
 
   .vpad-lr .vbtn-dir {
-    width: 56px;
-    height: 52px;
+    width: calc(56px * var(--pad, 1));
+    height: calc(52px * var(--pad, 1));
   }
 
   .vbtn {
-    min-width: 44px;
-    min-height: 44px;
+    min-width: calc(40px * var(--pad, 1));
+    min-height: calc(40px * var(--pad, 1));
     background: rgba(11, 11, 26, 0.6);
   }
 
@@ -531,13 +531,13 @@
   }
 
   .vbtn-round {
-    width: 56px;
-    height: 56px;
+    width: calc(56px * var(--pad, 1));
+    height: calc(56px * var(--pad, 1));
   }
 
   .vpad-single .vbtn-round {
-    width: 72px;
-    height: 72px;
+    width: calc(72px * var(--pad, 1));
+    height: calc(72px * var(--pad, 1));
   }
 
   .vbtn-caption {

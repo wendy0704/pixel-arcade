@@ -36,6 +36,8 @@ export class GameHost {
   private state: HostState = 'idle';
   private difficulty: Difficulty = 'normal';
   private session = 0;
+  private countdown = 0;
+  private countdownEl!: HTMLElement;
   private loop: GameLoop;
 
   private canvas!: HTMLCanvasElement;
@@ -115,6 +117,7 @@ export class GameHost {
     this.factory = null;
     this.overlay.detach();
     window.removeEventListener('keydown', this.onKey);
+    window.removeEventListener('pa:settings', this.onSettings);
     document.removeEventListener('visibilitychange', this.onVisibility);
     document.removeEventListener('fullscreenchange', this.onFullscreenChange);
     this.resizeObserver?.disconnect();
@@ -138,7 +141,8 @@ export class GameHost {
     const layer = h('div', { class: 'overlay-layer' });
     this.overlay = new OverlayLayer(layer, this.services.audio);
     this.rotateHint = h('p', { class: 'rotate-hint', hidden: true }, '建議將手機轉為橫向，畫面會比較大');
-    this.stage = h('main', { class: 'stage' }, this.canvas, layer, this.rotateHint);
+    this.countdownEl = h('div', { class: 'countdown pixel', hidden: true, 'aria-live': 'assertive' });
+    this.stage = h('main', { class: 'stage' }, this.canvas, this.countdownEl, layer, this.rotateHint);
 
     this.scoreEl = h('span', { class: 'value pixel' }, '0');
     this.bestEl = h('span', { class: 'value pixel' }, '---');
@@ -180,6 +184,7 @@ export class GameHost {
 
     this.overlay.attach();
     window.addEventListener('keydown', this.onKey);
+    window.addEventListener('pa:settings', this.onSettings);
     document.addEventListener('visibilitychange', this.onVisibility);
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
     this.resizeObserver = new ResizeObserver(() => this.fit());
@@ -190,6 +195,8 @@ export class GameHost {
   private prepare(): void {
     if (!this.entry || !this.factory) return;
     this.game?.destroy();
+    this.countdown = 0;
+    this.countdownEl.hidden = true;
     const { meta } = this.entry;
     const { width, height } = meta.size(this.difficulty);
     this.canvas.width = width;
@@ -223,9 +230,40 @@ export class GameHost {
   }
 
   private step(dt: number): void {
-    if (this.state === 'playing' && this.game) this.game.update(dt);
+    if (this.state === 'playing' && this.game) {
+      if (this.countdown > 0) this.tickCountdown(dt);
+      else this.game.update(dt);
+    }
     this.services.input.endStep();
   }
+
+  private tickCountdown(dt: number): void {
+    const before = Math.ceil(this.countdown);
+    this.countdown -= dt;
+    const after = Math.ceil(this.countdown);
+    if (this.countdown <= 0) {
+      this.countdown = 0;
+      this.showCountdown('GO!');
+      this.services.audio.play('start');
+      this.services.input.reset();
+      window.setTimeout(() => {
+        if (this.countdown <= 0) this.countdownEl.hidden = true;
+      }, 450);
+    } else if (after !== before) {
+      this.showCountdown(String(after));
+      this.services.audio.play('select');
+    }
+  }
+
+  private showCountdown(text: string): void {
+    this.countdownEl.hidden = false;
+    this.countdownEl.textContent = text;
+    this.countdownEl.classList.remove('pop');
+    void this.countdownEl.offsetWidth;
+    this.countdownEl.classList.add('pop');
+  }
+
+  private onSettings = (): void => this.fit();
 
   private draw(): void {
     if (this.game && this.state !== 'loading' && this.state !== 'idle') this.game.render();
@@ -244,10 +282,18 @@ export class GameHost {
   private start(): void {
     if (!this.game) return;
     this.services.input.reset();
-    this.services.audio.play('start');
     this.overlay.hide();
     this.setState('playing');
     this.canvas.focus({ preventScroll: true });
+    if (this.services.storage.getSettings().countdown) {
+      this.countdown = 3;
+      this.showCountdown('3');
+      this.services.audio.play('select');
+    } else {
+      this.countdown = 0;
+      this.countdownEl.hidden = true;
+      this.services.audio.play('start');
+    }
   }
 
   private pause(): void {
@@ -427,7 +473,7 @@ export class GameHost {
     const rect = this.stage.getBoundingClientRect();
     const compact = this.root.classList.contains('is-fs') || window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 500px)').matches;
     const margin = compact ? 4 : 16;
-    const scale = computeScale(rect.width - margin, rect.height - margin, this.canvas.width, this.canvas.height);
+    const scale = computeScale(rect.width - margin, rect.height - margin, this.canvas.width, this.canvas.height, this.services.storage.getSettings().scaleMode);
     this.canvas.style.width = `${Math.floor(this.canvas.width * scale)}px`;
     this.canvas.style.height = `${Math.floor(this.canvas.height * scale)}px`;
     const portraitTouch = window.matchMedia('(pointer: coarse) and (orientation: portrait)').matches;
@@ -494,7 +540,7 @@ export class GameHost {
   private onKey = (e: KeyboardEvent): void => {
     if (isModalOpen() || isTextTarget(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
     if (SCROLL_KEYS.has(e.code)) e.preventDefault();
-    if (this.state === 'playing' && this.game?.onKey?.(e.key)) {
+    if (this.state === 'playing' && this.countdown <= 0 && this.game?.onKey?.(e.key)) {
       e.preventDefault();
       return;
     }
@@ -520,7 +566,7 @@ export class GameHost {
   private bindPointer(): void {
     const c = this.canvas;
     const dispatch = (type: PointerInfo['type'], e: PointerEvent | { clientX: number; clientY: number; button: number; pointerType: string }) => {
-      if (this.state !== 'playing' || !this.game?.onPointer) return;
+      if (this.state !== 'playing' || this.countdown > 0 || !this.game?.onPointer) return;
       const { x, y } = toLogical(c, e.clientX, e.clientY);
       this.game.onPointer({
         type,
