@@ -1,4 +1,5 @@
 import { computeScale, getContext, toLogical } from '../core/canvas';
+import { distance, IDENTITY, midpoint, type PinchStart, pinchZoom, settle, type ZoomState } from '../core/zoom';
 import { GameLoop } from '../core/game-loop';
 import { findGame, formatScore, type GameEntry } from '../core/registry';
 import {
@@ -55,6 +56,10 @@ export class GameHost {
   private resizeObserver: ResizeObserver | null = null;
 
   private longPress = { timer: 0, id: -1, startX: 0, startY: 0, x: 0, y: 0 };
+  private zoom: ZoomState = { ...IDENTITY };
+  private touches = new Map<number, { x: number; y: number }>();
+  private pinch: PinchStart | null = null;
+  private swallowTouches = false;
   private lastScoreText = '';
 
   constructor(
@@ -197,6 +202,7 @@ export class GameHost {
     this.game?.destroy();
     this.countdown = 0;
     this.countdownEl.hidden = true;
+    this.resetZoom();
     const { meta } = this.entry;
     const { width, height } = meta.size(this.difficulty);
     this.canvas.width = width;
@@ -470,6 +476,7 @@ export class GameHost {
 
   private fit(): void {
     if (!this.root) return;
+    this.resetZoom();
     const rect = this.stage.getBoundingClientRect();
     const compact = this.root.classList.contains('is-fs') || window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 500px)').matches;
     const margin = compact ? 4 : 16;
@@ -576,10 +583,24 @@ export class GameHost {
         pointerType: e.pointerType === 'touch' ? 'touch' : e.pointerType === 'pen' ? 'pen' : 'mouse',
       });
     };
+    const zoomable = () => Boolean(this.entry?.meta.zoomable);
+    const pinchPoints = () => [...this.touches.values()].slice(0, 2);
     c.addEventListener('pointerdown', (e) => {
       if (this.state !== 'playing') return;
       e.preventDefault();
       c.setPointerCapture(e.pointerId);
+      if (e.pointerType === 'touch' && zoomable()) {
+        this.touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (this.touches.size >= 2) {
+          this.cancelLongPress();
+          if (!this.swallowTouches) dispatch('up', { clientX: -1e6, clientY: -1e6, button: 0, pointerType: 'touch' });
+          this.swallowTouches = true;
+          const [a, b] = pinchPoints();
+          this.pinch = { state: { ...this.zoom }, mid: midpoint(a, b), dist: distance(a, b) };
+          return;
+        }
+        if (this.swallowTouches) return;
+      }
       dispatch('down', e);
       if (e.pointerType !== 'mouse') {
         this.cancelLongPress();
@@ -594,18 +615,60 @@ export class GameHost {
       }
     });
     c.addEventListener('pointermove', (e) => {
+      if (this.touches.has(e.pointerId)) {
+        this.touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (this.pinch && this.touches.size >= 2) {
+          const [a, b] = pinchPoints();
+          const rect = c.getBoundingClientRect();
+          const base = { x: rect.left - this.zoom.tx, y: rect.top - this.zoom.ty };
+          this.zoom = pinchZoom(this.pinch, midpoint(a, b), distance(a, b), base, c.offsetWidth, c.offsetHeight);
+          this.applyZoom();
+          return;
+        }
+        if (this.swallowTouches) return;
+      }
       const lp = this.longPress;
       if (lp.timer && e.pointerId === lp.id && Math.hypot(e.clientX - lp.startX, e.clientY - lp.startY) > LONG_PRESS_SLOP) {
         this.cancelLongPress();
       }
       dispatch('move', e);
     });
+    const release = (e: PointerEvent) => {
+      if (!this.touches.delete(e.pointerId)) return false;
+      if (this.pinch && this.touches.size < 2) {
+        this.pinch = null;
+        this.zoom = settle(this.zoom);
+        this.applyZoom();
+      }
+      if (!this.swallowTouches) return false;
+      if (this.touches.size === 0) this.swallowTouches = false;
+      return true;
+    };
     c.addEventListener('pointerup', (e) => {
       if (e.pointerId === this.longPress.id) this.cancelLongPress();
+      if (release(e)) return;
       dispatch('up', e);
     });
-    c.addEventListener('pointercancel', () => this.cancelLongPress());
+    c.addEventListener('pointercancel', (e) => {
+      this.cancelLongPress();
+      release(e);
+    });
     c.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
+
+  private applyZoom(): void {
+    const { scale, tx, ty } = this.zoom;
+    this.canvas.style.transformOrigin = '0 0';
+    this.canvas.style.transform = scale === 1 ? '' : `translate(${tx}px, ${ty}px) scale(${scale})`;
+    this.root?.classList.toggle('is-zoomed', scale !== 1);
+  }
+
+  private resetZoom(): void {
+    this.zoom = { ...IDENTITY };
+    this.pinch = null;
+    this.touches.clear();
+    this.swallowTouches = false;
+    if (this.canvas) this.applyZoom();
   }
 
   private cancelLongPress(): void {

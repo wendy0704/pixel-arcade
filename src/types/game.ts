@@ -51,6 +51,7 @@ export interface GameMeta {
   touchHint?: string;
   padLayout: PadLayout;
   padLabels?: PadLabels;
+  zoomable?: boolean;
   size(difficulty: Difficulty): { width: number; height: number };
   drawThumbnail(ctx: CanvasRenderingContext2D, width: number, height: number): void;
 }

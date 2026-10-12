@@ -163,6 +163,10 @@
   }
 }
 
+.game-page.is-zoomed .rotate-hint {
+  display: none;
+}
+
 body {
   --pad: 1;
 }

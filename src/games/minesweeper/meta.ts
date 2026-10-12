@@ -19,8 +19,9 @@ export const meta: GameMeta = {
     { keys: '空白鍵 / Z', action: '打開格子' },
     { keys: 'X', action: '插旗 / 取消' },
   ],
-  touchHint: '點擊開格，長按插旗；也可以切換成插旗模式',
+  touchHint: '點擊開格，長按插旗；也可以切換成插旗模式。雙指可以放大縮小盤面',
   padLayout: 'flag-toggle',
+  zoomable: true,
   size(difficulty) {
     const { cols, rows } = CONFIG[difficulty];
     return { width: cols * CELL, height: rows * CELL + HUD };
