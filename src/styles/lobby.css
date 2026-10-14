@@ -122,27 +122,97 @@
 }
 
 .card {
+  --accent: var(--cyan);
+  --shell: color-mix(in srgb, var(--panel-light) 72%, var(--accent) 28%);
   position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  border: 2px solid var(--panel-light);
-  background: var(--panel);
-  box-shadow: var(--shadow);
-  transition: transform 100ms steps(2), border-color 100ms steps(2);
+  filter: drop-shadow(4px 4px 0 #000);
+  transition: transform 100ms steps(2);
+}
+
+.card[data-cat='puzzle'] {
+  --accent: var(--gold);
+}
+
+.card[data-cat='shooter'] {
+  --accent: var(--pink);
+}
+
+.card[data-cat='board'] {
+  --accent: var(--red);
 }
 
 .card:hover,
 .card:focus-within {
   transform: translateY(-4px);
-  border-color: var(--cyan);
+}
+
+.cart-shell {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 6px 10px 0;
+  background: var(--shell);
+  box-shadow:
+    inset 3px 3px 0 color-mix(in srgb, var(--shell) 70%, #fff 30%),
+    inset -3px -3px 0 color-mix(in srgb, var(--shell) 60%, #000 40%);
+  clip-path: polygon(
+    0 6px, 6px 6px, 6px 0,
+    calc(100% - 22px) 0, calc(100% - 22px) 4px, calc(100% - 18px) 4px, calc(100% - 18px) 8px,
+    calc(100% - 14px) 8px, calc(100% - 14px) 12px, calc(100% - 10px) 12px, calc(100% - 10px) 16px,
+    calc(100% - 6px) 16px, calc(100% - 6px) 20px, 100% 20px,
+    100% 100%, 0 100%
+  );
+}
+
+.card:hover .cart-shell,
+.card:focus-within .cart-shell {
+  --shell: color-mix(in srgb, var(--panel-light) 55%, var(--accent) 45%);
+}
+
+.cart-grip {
+  height: 14px;
+  margin: 2px 26% 8px 18%;
+  background: repeating-linear-gradient(to bottom, color-mix(in srgb, var(--shell) 55%, #000 45%) 0 2px, transparent 2px 4px);
+}
+
+.cart-label {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  border: 2px solid color-mix(in srgb, var(--shell) 50%, #000 50%);
+  background: var(--panel);
+}
+
+.cart-band {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 6px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 8px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.cart-pins {
+  height: 12px;
+  margin: 8px 12% 0;
+  border: 2px solid color-mix(in srgb, var(--shell) 40%, #000 60%);
+  border-bottom: none;
+  background: repeating-linear-gradient(90deg, #d4a83c 0 4px, #6a4a12 4px 7px);
 }
 
 .card-thumb {
   display: block;
   overflow: hidden;
   background: var(--bg);
-  border-bottom: 2px solid var(--panel-light);
+  border-bottom: 2px solid color-mix(in srgb, var(--shell) 50%, #000 50%);
 }
 
 .card-canvas {
@@ -181,9 +251,9 @@
   outline: none;
 }
 
-.card:focus-within:has(.card-link:focus-visible) {
+.card:focus-within:has(.card-link:focus-visible) .cart-label {
   outline: 2px solid var(--gold);
-  outline-offset: 3px;
+  outline-offset: -4px;
 }
 
 .card-title::before {
@@ -242,8 +312,8 @@
 
 .fav {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 50px;
+  right: 18px;
   z-index: 1;
   display: grid;
   place-items: center;
@@ -344,7 +414,25 @@
 
   .card-body {
     gap: 4px;
-    padding: 8px 10px 10px;
+    padding: 6px 8px 8px;
+  }
+
+  .cart-shell {
+    padding: 4px 6px 0;
+  }
+
+  .cart-grip {
+    height: 10px;
+    margin-bottom: 5px;
+  }
+
+  .cart-band span:first-child {
+    display: none;
+  }
+
+  .cart-pins {
+    height: 8px;
+    margin-top: 6px;
   }
 
   .card-desc {
@@ -363,8 +451,8 @@
   }
 
   .fav {
-    top: 6px;
-    right: 6px;
+    top: 36px;
+    right: 12px;
     width: 32px;
     height: 32px;
   }

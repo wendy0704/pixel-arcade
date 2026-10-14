@@ -190,19 +190,30 @@ export class Lobby {
     });
     return h(
       'article',
-      { class: 'card', 'data-id': meta.id, role: 'listitem' },
-      h('div', { class: 'card-thumb' }, thumb),
+      { class: 'card', 'data-id': meta.id, 'data-cat': meta.categories[0], role: 'listitem' },
       h(
         'div',
-        { class: 'card-body' },
-        h('h2', { class: 'card-title' }, h('a', { class: 'card-link', href: gameHref(meta.id) }, meta.title)),
-        h('p', { class: 'card-desc' }, meta.description),
+        { class: 'cart-shell' },
+        h('div', { class: 'cart-grip', 'aria-hidden': 'true' }),
         h(
           'div',
-          { class: 'card-meta' },
-          h('span', { class: 'tags' }, meta.categories.map((c) => h('span', { class: 'tag' }, CATEGORY_LABEL[c]))),
-          h('span', { class: 'best' }, h('span', { class: 'pixel best-label' }, 'BEST'), h('span', { class: 'pixel best-value' }, best ? formatScore(meta, best.score) : '---')),
+          { class: 'cart-label' },
+          h('div', { class: 'cart-band pixel', 'aria-hidden': 'true' }, h('span', {}, 'PIXEL ARCADE'), h('span', {}, `PA-${String(meta.order).padStart(2, '0')}`)),
+          h('div', { class: 'card-thumb' }, thumb),
+          h(
+            'div',
+            { class: 'card-body' },
+            h('h2', { class: 'card-title' }, h('a', { class: 'card-link', href: gameHref(meta.id) }, meta.title)),
+            h('p', { class: 'card-desc' }, meta.description),
+            h(
+              'div',
+              { class: 'card-meta' },
+              h('span', { class: 'tags' }, meta.categories.map((c) => h('span', { class: 'tag' }, CATEGORY_LABEL[c]))),
+              h('span', { class: 'best' }, h('span', { class: 'pixel best-label' }, 'BEST'), h('span', { class: 'pixel best-value' }, best ? formatScore(meta, best.score) : '---')),
+            ),
+          ),
         ),
+        h('div', { class: 'cart-pins', 'aria-hidden': 'true' }),
       ),
       fav,
     );
