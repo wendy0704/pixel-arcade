@@ -110,6 +110,37 @@
   gap: 8px;
 }
 
+[data-cat] {
+  --accent: var(--cyan);
+}
+
+[data-cat='puzzle'] {
+  --accent: var(--gold);
+}
+
+[data-cat='shooter'] {
+  --accent: var(--pink);
+}
+
+[data-cat='board'] {
+  --accent: var(--red);
+}
+
+.chip[data-cat] {
+  border-color: color-mix(in srgb, var(--panel-light) 50%, var(--accent) 50%);
+}
+
+.chip[data-cat]:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.chip[data-cat][aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+}
+
 .chip-fav[aria-pressed='true'] {
   border-color: var(--gold);
   background: var(--gold);
@@ -122,7 +153,6 @@
 }
 
 .card {
-  --accent: var(--cyan);
   --shell: color-mix(in srgb, var(--panel-light) 72%, var(--accent) 28%);
   position: relative;
   display: flex;
@@ -130,18 +160,6 @@
   min-width: 0;
   filter: drop-shadow(4px 4px 0 #000);
   transition: transform 100ms steps(2);
-}
-
-.card[data-cat='puzzle'] {
-  --accent: var(--gold);
-}
-
-.card[data-cat='shooter'] {
-  --accent: var(--pink);
-}
-
-.card[data-cat='board'] {
-  --accent: var(--red);
 }
 
 .card:hover,
@@ -261,7 +279,7 @@
   display: inline-block;
   width: 0;
   overflow: hidden;
-  color: var(--pink);
+  color: var(--accent);
   vertical-align: top;
 }
 
@@ -290,8 +308,8 @@
 
 .tag {
   padding: 0 8px;
-  border: 2px solid var(--cyan);
-  color: var(--cyan);
+  border: 2px solid var(--accent);
+  color: var(--accent);
 }
 
 .best {

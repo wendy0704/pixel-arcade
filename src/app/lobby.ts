@@ -77,7 +77,7 @@ export class Lobby {
     });
 
     const chips = FILTERS.map(({ value, label }) => {
-      const chip = h('button', { type: 'button', class: 'chip', 'aria-pressed': String(this.filter === value) }, label);
+      const chip = h('button', { type: 'button', class: 'chip', 'aria-pressed': String(this.filter === value), 'data-cat': value === 'all' ? undefined : value }, label);
       chip.addEventListener('click', () => {
         this.filter = value;
         chips.forEach((c, i) => c.setAttribute('aria-pressed', String(FILTERS[i].value === value)));
@@ -208,7 +208,7 @@ export class Lobby {
             h(
               'div',
               { class: 'card-meta' },
-              h('span', { class: 'tags' }, meta.categories.map((c) => h('span', { class: 'tag' }, CATEGORY_LABEL[c]))),
+              h('span', { class: 'tags' }, meta.categories.map((c) => h('span', { class: 'tag', 'data-cat': c }, CATEGORY_LABEL[c]))),
               h('span', { class: 'best' }, h('span', { class: 'pixel best-label' }, 'BEST'), h('span', { class: 'pixel best-value' }, best ? formatScore(meta, best.score) : '---')),
             ),
           ),
